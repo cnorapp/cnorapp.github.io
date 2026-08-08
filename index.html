@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>CNor — با هم ببینیم</title>
+<meta name="description" content="سی‌نور فیلم و سریال رو بین تو و دوستات هماهنگ نگه می‌داره. پخش، مکث و پرش همه همزمان. رایگان، بدون سرور، برای ویندوز." />
+<meta name="theme-color" content="#07070a" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="CNor" />
+<meta property="og:url" content="https://cnorapp.github.io/" />
+<meta property="og:title" content="CNor — با هم ببینیم" />
+<meta property="og:description" content="فاصله دیگه معنی نداره. فیلم و سریال‌های موردعلاقت رو همزمان با آدمایی که دوستشون داری ببین." />
+<!-- Crawlers read these without running JS, so the image has to be an
+     absolute URL — a relative one is dropped by most link previews. -->
+<meta property="og:image" content="https://cnorapp.github.io/assets/icon.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="canonical" href="https://cnorapp.github.io/" />
+
+<link rel="icon" type="image/png" href="assets/icon.png" />
+<link rel="apple-touch-icon" href="assets/icon.png" />
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+
+<style>
+/* ==========================================================================
+   Tokens — lifted straight from the app's design system so the site and the
+   product read as one thing.
+   ========================================================================== */
+:root {
+  --void: #07070a;
+  --void-2: #0d0d13;
+
+  --accent: #5fe0a8;
+  --accent-2: #8fecc3;
+  --accent-3: #34c98a;
+  --accent-ink: #032115;
+  --accent-wash: rgba(95, 224, 168, 0.12);
+  --accent-fill: rgba(95, 224, 168, 0.22);
+  --accent-glow: rgba(95, 224, 168, 0.4);
+
+  --text: #f5f3f0;
+  --text-2: #a9a4a0;
+  --text-3: #87817c;
+
+  --glass-1: rgba(255, 255, 255, 0.045);
+  --glass-2: rgba(255, 255, 255, 0.075);
+  --glass-blur: blur(40px) saturate(125%);
+
+  --hair: rgba(255, 255, 255, 0.09);
+  --hair-2: rgba(255, 255, 255, 0.14);
+
+  --rim: inset 0 1px 0 rgba(255, 255, 255, 0.11), inset 0 0 0 1px rgba(255, 255, 255, 0.045);
+  --rim-strong: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px -4px rgba(0, 0, 0, 0.4);
+  --sh-2: 0 4px 16px -4px rgba(0, 0, 0, 0.5), 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+  --sh-3: 0 8px 28px -8px rgba(0, 0, 0, 0.6), 0 40px 80px -24px rgba(0, 0, 0, 0.8);
+
+  --r-sm: 9px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-2xl: 28px;
+  --r-pill: 999px;
+
+  --e-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring: cubic-bezier(0.34, 1.3, 0.5, 1);
+
+  --gutter: clamp(20px, 5vw, 56px);
+  --maxw: 1180px;
+
+  --font-fa: "Vazirmatn", "Segoe UI", system-ui, sans-serif;
+  --font-en: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --font: var(--font-fa);
+
+  --lh: 1.75;
+  --track: 0;
+}
+
+html[lang="en"] {
+  --font: var(--font-en);
+  --lh: 1.55;
+  --track: -0.006em;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  min-height: 100%;
+  background: var(--void);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: var(--lh);
+  letter-spacing: var(--track);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+::selection { background: var(--accent-fill); color: var(--text); }
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.13);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.26); background-clip: content-box; }
+
+:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-fill), 0 0 0 1px var(--accent); border-radius: var(--r-sm); }
+
+/* --------------------------------------------------------------------------
+   Atmosphere — the lit room the glass floats over. Same layer stack the app
+   uses, so the two feel like one continuous surface.
+   -------------------------------------------------------------------------- */
+.atmos {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  /* The lamp/blinds/grain layers all deliberately overhang their box so their
+     edges never show. Without clipping here that overhang widens the document
+     and hands narrow screens a phantom horizontal scroll. */
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 0%, var(--void-2), var(--void) 70%);
+}
+.atmos-lamp {
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(38% 32% at 58% -4%, var(--accent), transparent 66%),
+    radial-gradient(34% 38% at 6% 88%, #4b6ad0, transparent 68%),
+    radial-gradient(40% 36% at 86% 30%, #2f9b7f, transparent 70%),
+    radial-gradient(36% 34% at 74% 96%, #2f7fb8, transparent 72%);
+  opacity: 0.2;
+  filter: blur(70px);
+  animation: drift 34s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
+  will-change: transform;
+}
+@keyframes drift { to { transform: translate3d(-3%, 2.5%, 0) scale(1.08); } }
+
+.atmos-blinds {
+  position: absolute;
+  inset: -30%;
+  background: repeating-linear-gradient(
+    102deg,
+    transparent 0 46px,
+    rgba(255, 255, 255, 0.022) 46px 52px,
+    transparent 52px 98px
+  );
+  -webkit-mask-image: radial-gradient(52% 58% at 70% 4%, #000, transparent 76%);
+  mask-image: radial-gradient(52% 58% at 70% 4%, #000, transparent 76%);
+  animation: blinds 52s linear infinite;
+  will-change: transform;
+}
+@keyframes blinds { to { transform: translate3d(-98px, 22px, 0); } }
+
+.atmos-grain {
+  position: absolute;
+  inset: -100px;
+  width: calc(100% + 200px);
+  height: calc(100% + 200px);
+  opacity: 0.28;
+  mix-blend-mode: overlay;
+  animation: grain 0.7s steps(4) infinite;
+  will-change: transform;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-14px, 9px); }
+  50% { transform: translate(11px, -12px); }
+  75% { transform: translate(-8px, -6px); }
+  100% { transform: translate(0, 0); }
+}
+
+.atmos-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(130% 110% at 50% 36%, transparent 46%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.atmos-spot {
+  position: absolute;
+  top: 0; left: 0;
+  width: 680px; height: 680px;
+  margin: -340px 0 0 -340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(95, 224, 168, 0.055), transparent 62%);
+  will-change: transform;
+  transition: opacity 0.4s;
+}
+
+/* --------------------------------------------------------------------------
+   Shared primitives
+   -------------------------------------------------------------------------- */
+.wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+
+.glass {
+  background: linear-gradient(170deg, rgba(255,255,255,0.075), rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.03));
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--rim), var(--sh-2);
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-2);
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px rgba(95, 224, 168, 0.2);
+}
+.kicker .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: pulse 2.4s var(--e-out) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.78); }
+}
+
+h1, h2, h3 { line-height: 1.25; font-weight: 700; }
+html[lang="en"] h1, html[lang="en"] h2, html[lang="en"] h3 { letter-spacing: -0.02em; }
+
+.sec-title {
+  font-size: clamp(26px, 4.2vw, 40px);
+  margin-top: 18px;
+}
+.sec-sub {
+  color: var(--text-2);
+  font-size: clamp(15px, 1.7vw, 17px);
+  margin-top: 12px;
+  max-width: 60ch;
+}
+.sec-head { text-align: center; display: flex; flex-direction: column; align-items: center; }
+
+section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px); }
+
+/* Buttons ------------------------------------------------------------------ */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 26px;
+  border-radius: var(--r-pill);
+  font-weight: 600;
+  font-size: 15.5px;
+  white-space: nowrap;
+  transition: transform 0.28s var(--spring), box-shadow 0.28s var(--e-out), background 0.24s;
+  will-change: transform;
+}
+.btn svg { flex: none; }
+
+.btn.primary {
+  background: linear-gradient(165deg, var(--accent-2), var(--accent));
+  color: var(--accent-ink);
+  box-shadow: var(--rim-strong), 0 6px 22px -6px var(--accent-glow), var(--sh-1);
+}
+.btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--rim-strong), 0 12px 34px -8px var(--accent-glow), var(--sh-2);
+}
+.btn.primary:active { transform: translateY(0) scale(0.985); }
+
+.btn.ghost {
+  background: var(--glass-1);
+  color: var(--text);
+  box-shadow: var(--rim);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.btn.ghost:hover { background: var(--glass-2); transform: translateY(-2px); }
+.btn.ghost:active { transform: translateY(0) scale(0.985); }
+
+.btn.lg { padding: 17px 34px; font-size: 16.5px; }
+.btn.sm { padding: 10px 18px; font-size: 14px; }
+
+/* Shine sweep on the primary CTA */
+.btn.primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.45) 48%, transparent 62%);
+  transform: translateX(-140%);
+  opacity: 0;
+  pointer-events: none;
+}
+.btn.primary:hover::after { animation: sweep 0.9s var(--e-out); }
+@keyframes sweep {
+  0% { transform: translateX(-140%); opacity: 0.9; }
+  100% { transform: translateX(140%); opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Nav
+   -------------------------------------------------------------------------- */
+.nav {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  transition: background 0.35s, box-shadow 0.35s, backdrop-filter 0.35s;
+}
+.nav-in {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 68px;
+}
+.nav.stuck {
+  background: rgba(8, 8, 11, 0.7);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  box-shadow: 0 1px 0 var(--hair), 0 12px 34px -18px rgba(0,0,0,0.9);
+}
+
+.brand { display: flex; align-items: center; gap: 11px; margin-inline-end: auto; }
+.brand img { width: 34px; height: 34px; border-radius: 10px; box-shadow: var(--sh-1); }
+.brand-name {
+  font-family: var(--font-en);
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+  direction: ltr;
+}
+.brand-name i { font-style: normal; color: var(--accent); }
+
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-links a {
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  font-size: 14.5px;
+  color: var(--text-2);
+  transition: color 0.2s, background 0.2s;
+}
+.nav-links a:hover { color: var(--text); background: var(--glass-1); }
+
+.lang {
+  display: flex;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: rgba(255,255,255,0.05);
+  box-shadow: var(--rim);
+}
+.lang button {
+  padding: 6px 13px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-3);
+  font-family: var(--font-en);
+  transition: color 0.2s, background 0.24s var(--e-out);
+}
+.lang button[aria-pressed="true"] {
+  color: var(--accent-ink);
+  background: linear-gradient(165deg, var(--accent-2), var(--accent));
+  box-shadow: var(--sh-1);
+}
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding-top: 96px;
+  padding-bottom: 64px;
+  text-align: center;
+}
+.hero-in { display: flex; flex-direction: column; align-items: center; }
+
+.hero-icon {
+  width: clamp(104px, 15vw, 148px);
+  height: clamp(104px, 15vw, 148px);
+  border-radius: clamp(26px, 3.6vw, 38px);
+  box-shadow: var(--sh-3), 0 0 90px -20px var(--accent-glow);
+  animation: float 7s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(-1.2deg); }
+}
+
+.wordmark {
+  font-family: var(--font-en);
+  direction: ltr;
+  font-weight: 800;
+  font-size: clamp(58px, 11vw, 116px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  margin-top: 26px;
+  background: linear-gradient(170deg, #fff 12%, #b9b4ae 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.wordmark i {
+  font-style: normal;
+  background: linear-gradient(170deg, var(--accent-2), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-tag {
+  margin-top: 22px;
+  font-size: clamp(16px, 2.2vw, 20px);
+  color: var(--text-2);
+  max-width: 40ch;
+}
+.hero-tag b { color: var(--text); font-weight: 600; }
+
+.hero-cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 36px; }
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  justify-content: center;
+  margin-top: 22px;
+  font-size: 13.5px;
+  color: var(--text-3);
+}
+.hero-meta span { display: inline-flex; align-items: center; gap: 7px; }
+.hero-meta svg { color: var(--accent); flex: none; }
+
+/* Scroll cue */
+.cue {
+  margin-top: clamp(34px, 6vw, 64px);
+  width: 26px; height: 42px;
+  border-radius: var(--r-pill);
+  box-shadow: inset 0 0 0 1.5px var(--hair-2);
+  display: grid;
+  justify-items: center;
+  padding-top: 8px;
+}
+.cue i {
+  display: block;
+  width: 3.5px; height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  animation: cue 1.9s var(--e-out) infinite;
+}
+@keyframes cue {
+  0% { opacity: 0; transform: translateY(-4px); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(16px); }
+}
+
+/* --------------------------------------------------------------------------
+   Download
+   -------------------------------------------------------------------------- */
+.dl-card {
+  margin-top: 44px;
+  border-radius: var(--r-2xl);
+  padding: clamp(24px, 3.6vw, 40px);
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 860px) { .dl-card { grid-template-columns: 1.05fr 1fr; align-items: center; } }
+
+.dl-main { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.dl-os { display: flex; align-items: center; gap: 14px; }
+.dl-os .os-ico {
+  width: 52px; height: 52px;
+  display: grid; place-items: center;
+  border-radius: var(--r-lg);
+  background: var(--glass-2);
+  box-shadow: var(--rim);
+  color: var(--accent);
+}
+.dl-os h3 { font-size: 21px; }
+.dl-os p { font-size: 14px; color: var(--text-3); }
+
+.dl-facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: var(--r-pill);
+  background: rgba(255,255,255,0.05);
+  box-shadow: var(--rim);
+  font-size: 13px;
+  color: var(--text-2);
+}
+.chip b { color: var(--text); font-weight: 600; font-family: var(--font-mono); font-size: 12.5px; direction: ltr; }
+
+/* Install steps */
+.steps { display: grid; gap: 14px; }
+.step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.035);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.045);
+  transition: background 0.24s, transform 0.28s var(--e-out);
+}
+.step:hover { background: rgba(255,255,255,0.06); transform: translateX(calc(-4px * var(--dirmul, 1))); }
+.step .n {
+  flex: none;
+  width: 27px; height: 27px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px rgba(95,224,168,0.24);
+  color: var(--accent-2);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-en);
+  margin-top: 2px;
+}
+.step p { font-size: 14.5px; color: var(--text-2); }
+.step p b { color: var(--text); font-weight: 600; }
+
+/* --------------------------------------------------------------------------
+   Features
+   -------------------------------------------------------------------------- */
+.grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 48px;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+}
+.card {
+  position: relative;
+  border-radius: var(--r-xl);
+  padding: 26px 24px;
+  overflow: hidden;
+  transition: transform 0.4s var(--e-out), box-shadow 0.4s var(--e-out);
+}
+.card:hover { transform: translateY(-5px); box-shadow: var(--rim), var(--sh-3); }
+/* Cursor-tracked sheen — set from JS */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), rgba(95,224,168,0.1), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+.card:hover::before { opacity: 1; }
+
+.card .ico {
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  border-radius: var(--r-md);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px rgba(95,224,168,0.2);
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.card h3 { font-size: 17.5px; }
+.card p { margin-top: 9px; font-size: 14.5px; color: var(--text-2); }
+
+/* --------------------------------------------------------------------------
+   How it works
+   -------------------------------------------------------------------------- */
+.flow { display: grid; gap: 18px; margin-top: 48px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.flow-item {
+  position: relative;
+  padding: 28px 24px;
+  border-radius: var(--r-xl);
+  text-align: center;
+}
+.flow-item .big {
+  font-family: var(--font-en);
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(170deg, var(--accent-2), rgba(95,224,168,0.25));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.flow-item h3 { margin-top: 12px; font-size: 17.5px; }
+.flow-item p { margin-top: 8px; font-size: 14.5px; color: var(--text-2); }
+
+/* --------------------------------------------------------------------------
+   VLC callout
+   -------------------------------------------------------------------------- */
+.vlc {
+  margin-top: 44px;
+  border-radius: var(--r-2xl);
+  padding: clamp(24px, 3.4vw, 38px);
+  display: grid;
+  gap: 24px;
+}
+@media (min-width: 800px) { .vlc { grid-template-columns: 1fr auto; align-items: center; } }
+.vlc h3 { font-size: 20px; }
+.vlc p { margin-top: 10px; color: var(--text-2); font-size: 15px; max-width: 58ch; }
+.vlc-links { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* --------------------------------------------------------------------------
+   Credits
+   -------------------------------------------------------------------------- */
+.people { display: grid; gap: 16px; margin-top: 44px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.person {
+  border-radius: var(--r-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.person-head { display: flex; align-items: center; gap: 14px; }
+.person-head img { width: 52px; height: 52px; box-shadow: var(--sh-1); }
+.person-head img.round { border-radius: 50%; }
+.person-head img.square { border-radius: var(--r-md); }
+.person-head .nm { font-weight: 600; font-size: 16.5px; }
+.person-head .rl { font-size: 13.5px; color: var(--text-3); }
+
+.socials { display: flex; flex-wrap: wrap; gap: 9px; }
+.social {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: var(--r-pill);
+  background: rgba(255,255,255,0.05);
+  box-shadow: var(--rim);
+  font-size: 13.5px;
+  color: var(--text-2);
+  transition: color 0.22s, background 0.22s, transform 0.28s var(--spring), box-shadow 0.22s;
+}
+.social svg { color: var(--brand, var(--accent)); transition: transform 0.3s var(--spring); }
+.social:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--brand, var(--accent)) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand, var(--accent)) 40%, transparent);
+  transform: translateY(-2px);
+}
+.social:hover svg { transform: scale(1.14); }
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+.foot {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--hair);
+  padding-block: 34px;
+  margin-top: 40px;
+}
+.foot-in {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13.5px;
+  color: var(--text-3);
+}
+.foot a { color: var(--text-2); transition: color 0.2s; }
+.foot a:hover { color: var(--accent-2); }
+
+/* --------------------------------------------------------------------------
+   Reveal-on-scroll
+   -------------------------------------------------------------------------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.85s var(--e-out), transform 0.85s var(--e-out);
+  transition-delay: var(--d, 0ms);
+}
+[data-reveal].in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  [data-reveal] { opacity: 1; transform: none; }
+  .atmos-spot { display: none; }
+}
+
+@media (max-width: 700px) {
+  .nav-links { display: none; }
+  .hero { min-height: auto; padding-top: 120px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Atmosphere ---------------------------------------------------------- -->
+<div class="atmos" aria-hidden="true">
+  <div class="atmos-lamp"></div>
+  <div class="atmos-blinds"></div>
+  <svg class="atmos-grain" xmlns="http://www.w3.org/2000/svg">
+    <filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#n)" opacity="0.42"/>
+  </svg>
+  <div class="atmos-vignette"></div>
+  <div class="atmos-spot" id="spot"></div>
+</div>
+
+<!-- Nav ----------------------------------------------------------------- -->
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">
+      <img src="assets/icon.png" alt="" width="34" height="34" />
+      <span class="brand-name">C<i>N</i>or</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="#download" data-i18n="nav.download">دانلود</a>
+      <a href="#features" data-i18n="nav.features">ویژگی‌ها</a>
+      <a href="#how" data-i18n="nav.how">چطور کار می‌کنه</a>
+      <a href="#about" data-i18n="nav.about">درباره</a>
+    </nav>
+
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="fa" aria-pressed="true">FA</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- Hero ---------------------------------------------------------------- -->
+<section class="hero">
+  <div class="wrap hero-in">
+    <img class="hero-icon" src="assets/icon.png" alt="CNor" width="148" height="148" data-reveal />
+
+    <h1 class="wordmark" data-reveal style="--d:60ms">C<i>N</i>or</h1>
+
+    <p class="hero-tag" data-reveal style="--d:140ms">
+      <b data-i18n="hero.line1">فاصله دیگه معنی نداره.</b><br />
+      <span data-i18n="hero.line2">فیلم و سریال‌های موردعلاقت رو همزمان با آدمایی که دوستشون داری ببین.</span>
+    </p>
+
+    <div class="hero-cta" data-reveal style="--d:220ms">
+      <a class="btn primary lg" href="#download" id="heroDl">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
+        <span data-i18n="hero.cta">دانلود برای ویندوز</span>
+      </a>
+      <a class="btn ghost lg" href="#how">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none"/></svg>
+        <span data-i18n="hero.cta2">چطور کار می‌کنه؟</span>
+      </a>
+    </div>
+
+    <div class="hero-meta" data-reveal style="--d:300ms">
+      <span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+        <span data-i18n="hero.m1">کاملاً رایگان</span>
+      </span>
+      <span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+        <span data-i18n="hero.m2">بدون سرور و اشتراک</span>
+      </span>
+      <span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+        <span data-i18n="hero.m3">فارسی و انگلیسی</span>
+      </span>
+    </div>
+
+    <div class="cue" aria-hidden="true"><i></i></div>
+  </div>
+</section>
+
+<!-- Download ------------------------------------------------------------ -->
+<section id="download">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="kicker"><span class="dot"></span><span data-i18n="dl.kicker">دانلود</span></span>
+      <h2 class="sec-title" data-i18n="dl.title">همین الان شروع کن</h2>
+      <p class="sec-sub" data-i18n="dl.sub">نصبش کمتر از یک دقیقه طول می‌کشه. بعدش فقط کافیه یه اتاق بسازی و لینکشو برای دوستات بفرستی.</p>
+    </div>
+
+    <div class="dl-card glass" data-reveal style="--d:80ms">
+      <div class="dl-main">
+        <div class="dl-os">
+          <span class="os-ico">
+            <svg width="27" height="27" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.6 10.3 4.6v6.8H3V5.6Zm0 12.8 7.3 1V12.6H3v5.8Zm8.5 1.2L21 21V12.6h-9.5v7Zm0-15.2v7H21V3l-9.5 1.4Z"/></svg>
+          </span>
+          <div>
+            <h3 data-i18n="dl.win">ویندوز</h3>
+            <p data-i18n="dl.winSub">ویندوز ۱۰ و ۱۱ · ۶۴ بیتی</p>
+          </div>
+        </div>
+
+        <div class="dl-facts">
+          <span class="chip"><span data-i18n="dl.version">نسخه</span> <b id="verTxt">1.0.0</b></span>
+          <span class="chip"><span data-i18n="dl.size">حجم</span> <b id="sizeTxt">~90 MB</b></span>
+          <span class="chip"><span data-i18n="dl.updated">آخرین بروزرسانی</span> <b id="dateTxt">—</b></span>
+        </div>
+
+        <a class="btn primary lg" id="dlBtn" href="https://cnor-dl.cnor-dl-worker.workers.dev/dl/CNor-1.0.5-x64.exe" download>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
+          <span data-i18n="dl.btn">دانلود نصب‌کننده</span>
+        </a>
+
+        <p style="font-size:13px;color:var(--text-3)" data-i18n="dl.note">بعد از هر آپدیت، برنامه خودش بروز می‌شه — دیگه لازم نیست دوباره از اینجا دانلود کنی.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <span class="n">1</span>
+          <p data-i18n="dl.s1">فایل نصب رو دانلود و اجرا کن. برنامه توی <b>Program Files</b> نصب می‌شه.</p>
+        </div>
+        <div class="step">
+          <span class="n">2</span>
+          <p data-i18n="dl.s2">اولین بار ازت می‌پرسه <b>VLC</b> داری یا نه. اگه نداری، همونجا لینک دانلودش رو بهت می‌ده.</p>
+        </div>
+        <div class="step">
+          <span class="n">3</span>
+          <p data-i18n="dl.s3">یه اتاق بساز، آدرسشو برای دوستات بفرست و <b>با هم ببینید</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features ------------------------------------------------------------ -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="kicker"><span class="dot"></span><span data-i18n="ft.kicker">ویژگی‌ها</span></span>
+      <h2 class="sec-title" data-i18n="ft.title">هرچی برای یه شب فیلم لازمه</h2>
+      <p class="sec-sub" data-i18n="ft.sub">سی‌نور سعی نمی‌کنه پخش‌کننده باشه — کاری که می‌کنه اینه که پخش‌کننده‌ی همه رو دقیقاً روی یه لحظه نگه داره.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card glass" data-reveal>
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span>
+        <h3 data-i18n="ft.1t">هماهنگی دقیق</h3>
+        <p data-i18n="ft.1b">پخش، مکث و پرش برای همه همزمان اتفاق می‌افته. اگه یکی عقب بیفته، سی‌نور آروم برش می‌گردونه سر جاش.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:60ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="3.5"/><path d="M22 20v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.6a4 4 0 0 1 0 7"/></svg></span>
+        <h3 data-i18n="ft.2t">اتاق با دوستات</h3>
+        <p data-i18n="ft.2b">یه اتاق بساز، رمز بذار یا نذار. هرکی وارد شد توی لیست می‌بینیش و می‌تونی باهاش چت کنی.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:120ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v11H4z"/><path d="M2 20h20"/><path d="m10 9.5 4.5 2.5-4.5 2.5z" fill="currentColor" stroke="none"/></svg></span>
+        <h3 data-i18n="ft.3t">فایل خودت یا استریم</h3>
+        <p data-i18n="ft.3b">یا هرکی نسخه‌ی خودشو باز می‌کنه، یا فایل مستقیم از سیستم تو برای بقیه پخش می‌شه — بدون آپلود جایی.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:180ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+        <h3 data-i18n="ft.4t">خصوصی و بدون سرور</h3>
+        <p data-i18n="ft.4b">هیچ فایلی روی هیچ سروری نمی‌ره. اتصال مستقیم بین خودتونه و لینک فیلم فقط پیش میزبان می‌مونه.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:240ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/><path d="M3.5 9h17M3.5 15h17"/><path d="M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3Z"/></svg></span>
+        <h3 data-i18n="ft.5t">فارسی، راست‌چین</h3>
+        <p data-i18n="ft.5b">کل برنامه فارسیه و کامل راست‌چین طراحی شده — نه ترجمه‌ی نصفه‌نیمه‌ی یه رابط انگلیسی.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:300ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7.5 11 4.5 4.5 4.5-4.5"/><path d="M4 20h16"/></svg></span>
+        <h3 data-i18n="ft.6t">آپدیت خودکار</h3>
+        <p data-i18n="ft.6b">نسخه‌ی جدید که بیاد، خودش می‌گیره و نصب می‌کنه. لازم نیست دوباره سراغ سایت بیای.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -------------------------------------------------------- -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="kicker"><span class="dot"></span><span data-i18n="how.kicker">چطور کار می‌کنه</span></span>
+      <h2 class="sec-title" data-i18n="how.title">سه قدم تا شروع فیلم</h2>
+    </div>
+
+    <div class="flow">
+      <div class="flow-item glass" data-reveal>
+        <div class="big" data-i18n="how.n1">۱</div>
+        <h3 data-i18n="how.1t">اتاق بساز</h3>
+        <p data-i18n="how.1b">اسم و رمز دلخواهت رو بذار و اتاق رو باز کن. سی‌نور آدرس اتاق رو بهت می‌ده.</p>
+      </div>
+      <div class="flow-item glass" data-reveal style="--d:80ms">
+        <div class="big" data-i18n="how.n2">۲</div>
+        <h3 data-i18n="how.2t">دوستاتو دعوت کن</h3>
+        <p data-i18n="how.2b">آدرس رو براشون بفرست. اونا توی برنامه‌ی خودشون واردش می‌کنن و میان تو اتاق.</p>
+      </div>
+      <div class="flow-item glass" data-reveal style="--d:160ms">
+        <div class="big" data-i18n="how.n3">۳</div>
+        <h3 data-i18n="how.3t">پخش کن</h3>
+        <p data-i18n="how.3b">فیلم رو انتخاب کن و بزن پلی. از اینجا به بعد همه چیز خودکار هماهنگ می‌مونه.</p>
+      </div>
+    </div>
+
+    <div class="vlc glass" data-reveal style="--d:120ms">
+      <div>
+        <h3 data-i18n="vlc.title">یه چیز کوچیک: به VLC نیاز داری</h3>
+        <p data-i18n="vlc.body">سی‌نور فیلم رو با VLC پخش می‌کنه. اگه نداشته باشی، برنامه خودش موقع اجرای اول بهت می‌گه و لینک دانلود رو نشونت می‌ده — ولی اگه دوست داری از قبل نصبش کنی:</p>
+      </div>
+      <div class="vlc-links">
+        <a class="btn ghost" href="https://soft98.ir/multi-media/video-player/496-vlc-media-player.html" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+          <span data-i18n="vlc.local">سایت داخلی</span>
+        </a>
+        <a class="btn ghost" href="https://www.videolan.org/vlc/" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+          <span data-i18n="vlc.intl">سایت بین‌الملل</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About / credits ----------------------------------------------------- -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="kicker"><span class="dot"></span><span data-i18n="ab.kicker">درباره</span></span>
+      <h2 class="sec-title" data-i18n="ab.title">ساخته‌ی کیه؟</h2>
+    </div>
+
+    <div class="people">
+      <div class="person glass" data-reveal>
+        <div class="person-head">
+          <img class="round" src="assets/sirahmadz.webp" alt="" width="52" height="52" />
+          <div>
+            <div class="nm">SirAhmadz</div>
+            <div class="rl" data-i18n="ab.creator">سی‌نور رو از صفر ساخت</div>
+          </div>
+        </div>
+        <div class="socials">
+          <a class="social" style="--brand:#2AABEE" href="https://t.me/thesirahmadz" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 4.3 18.4 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.1 12.7 1.3 11.2c-1-.3-1-1 .2-1.5l18.7-7.2c.9-.3 1.6.2 1.4 1.8Z"/></svg>
+            <span data-i18n="ab.telegram">تلگرام</span>
+          </a>
+          <a class="social" style="--brand:#E1306C" href="https://www.instagram.com/SirAhmadz" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none"/></svg>
+            <span data-i18n="ab.instagram">اینستاگرام</span>
+          </a>
+          <a class="social" style="--brand:#FF6B6B" href="https://donito.me/sirahmadz" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.7 4.3 13a4.8 4.8 0 0 1 6.8-6.8l.9.9.9-.9a4.8 4.8 0 1 1 6.8 6.8Z"/></svg>
+            <span data-i18n="ab.donate">حمایت</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="person glass" data-reveal style="--d:80ms">
+        <div class="person-head">
+          <img class="square" src="assets/noir-studios.webp" alt="" width="52" height="52" />
+          <div>
+            <div class="nm">Noir Studios</div>
+            <div class="rl" data-i18n="ab.studio">انجمن و آپدیت‌ها</div>
+          </div>
+        </div>
+        <div class="socials">
+          <a class="social" style="--brand:#5865F2" href="https://discord.gg/QNBQcZzV9C" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.3 5.4A16.5 16.5 0 0 0 15.2 4l-.3.5c1.4.4 2.4 1 3.4 1.7a12 12 0 0 0-9-.6c-.5.2-.9.4-1.3.6A12.4 12.4 0 0 1 9 4.5L8.8 4C7.4 4.2 6 4.7 4.7 5.4 2.2 9.1 1.5 12.8 1.9 16.4a16.6 16.6 0 0 0 5 2.5l1-1.6c-.6-.2-1.1-.5-1.6-.8l.4-.3a11.9 11.9 0 0 0 10.6 0l.4.3c-.5.3-1 .6-1.7.8l1 1.6a16.5 16.5 0 0 0 5-2.5c.5-4.2-.6-7.9-2.7-11ZM8.4 14.2c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm7.2 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z"/></svg>
+            <span data-i18n="ab.discord">دیسکورد</span>
+          </a>
+          <a class="social" style="--brand:#5fe0a8" href="#download">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
+            <span data-i18n="ab.releases">دانلود CNor</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span data-i18n="foot.rights">© <span id="yr">2026</span> Noir Studios · همه حقوق محفوظه</span>
+    <span><a href="#top" data-i18n="foot.top">برگرد بالا ↑</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------------------
+     Copy. Both languages live here so the toggle can rewrite the page
+     without a reload, the same way the desktop app does it.
+     --------------------------------------------------------------------- */
+  var COPY = {
+    fa: {
+      'nav.download': 'دانلود', 'nav.features': 'ویژگی‌ها', 'nav.how': 'چطور کار می‌کنه', 'nav.about': 'درباره',
+      'hero.line1': 'فاصله دیگه معنی نداره.',
+      'hero.line2': 'فیلم و سریال‌های موردعلاقت رو همزمان با آدمایی که دوستشون داری ببین.',
+      'hero.cta': 'دانلود برای ویندوز', 'hero.cta2': 'چطور کار می‌کنه؟',
+      'hero.m1': 'کاملاً رایگان', 'hero.m2': 'بدون سرور و اشتراک', 'hero.m3': 'فارسی و انگلیسی',
+      'dl.kicker': 'دانلود', 'dl.title': 'همین الان شروع کن',
+      'dl.sub': 'نصبش کمتر از یک دقیقه طول می‌کشه. بعدش فقط کافیه یه اتاق بسازی و لینکشو برای دوستات بفرستی.',
+      'dl.win': 'ویندوز', 'dl.winSub': 'ویندوز ۱۰ و ۱۱ · ۶۴ بیتی',
+      'dl.version': 'نسخه', 'dl.size': 'حجم', 'dl.updated': 'آخرین بروزرسانی',
+      'dl.btn': 'دانلود نصب‌کننده',
+      'dl.note': 'بعد از هر آپدیت، برنامه خودش بروز می‌شه — دیگه لازم نیست دوباره از اینجا دانلود کنی.',
+      'dl.s1': 'فایل نصب رو دانلود و اجرا کن. برنامه توی <b>Program Files</b> نصب می‌شه.',
+      'dl.s2': 'اولین بار ازت می‌پرسه <b>VLC</b> داری یا نه. اگه نداری، همونجا لینک دانلودش رو بهت می‌ده.',
+      'dl.s3': 'یه اتاق بساز، آدرسشو برای دوستات بفرست و <b>با هم ببینید</b>.',
+      'ft.kicker': 'ویژگی‌ها', 'ft.title': 'هرچی برای یه شب فیلم لازمه',
+      'ft.sub': 'سی‌نور سعی نمی‌کنه پخش‌کننده باشه — کاری که می‌کنه اینه که پخش‌کننده‌ی همه رو دقیقاً روی یه لحظه نگه داره.',
+      'ft.1t': 'هماهنگی دقیق', 'ft.1b': 'پخش، مکث و پرش برای همه همزمان اتفاق می‌افته. اگه یکی عقب بیفته، سی‌نور آروم برش می‌گردونه سر جاش.',
+      'ft.2t': 'اتاق با دوستات', 'ft.2b': 'یه اتاق بساز، رمز بذار یا نذار. هرکی وارد شد توی لیست می‌بینیش و می‌تونی باهاش چت کنی.',
+      'ft.3t': 'فایل خودت یا استریم', 'ft.3b': 'یا هرکی نسخه‌ی خودشو باز می‌کنه، یا فایل مستقیم از سیستم تو برای بقیه پخش می‌شه — بدون آپلود جایی.',
+      'ft.4t': 'خصوصی و بدون سرور', 'ft.4b': 'هیچ فایلی روی هیچ سروری نمی‌ره. اتصال مستقیم بین خودتونه و لینک فیلم فقط پیش میزبان می‌مونه.',
+      'ft.5t': 'فارسی، راست‌چین', 'ft.5b': 'کل برنامه فارسیه و کامل راست‌چین طراحی شده — نه ترجمه‌ی نصفه‌نیمه‌ی یه رابط انگلیسی.',
+      'ft.6t': 'آپدیت خودکار', 'ft.6b': 'نسخه‌ی جدید که بیاد، خودش می‌گیره و نصب می‌کنه. لازم نیست دوباره سراغ سایت بیای.',
+      'how.kicker': 'چطور کار می‌کنه', 'how.title': 'سه قدم تا شروع فیلم',
+      'how.n1': '۱', 'how.n2': '۲', 'how.n3': '۳',
+      'how.1t': 'اتاق بساز', 'how.1b': 'اسم و رمز دلخواهت رو بذار و اتاق رو باز کن. سی‌نور آدرس اتاق رو بهت می‌ده.',
+      'how.2t': 'دوستاتو دعوت کن', 'how.2b': 'آدرس رو براشون بفرست. اونا توی برنامه‌ی خودشون واردش می‌کنن و میان تو اتاق.',
+      'how.3t': 'پخش کن', 'how.3b': 'فیلم رو انتخاب کن و بزن پلی. از اینجا به بعد همه چیز خودکار هماهنگ می‌مونه.',
+      'vlc.title': 'یه چیز کوچیک: به VLC نیاز داری',
+      'vlc.body': 'سی‌نور فیلم رو با VLC پخش می‌کنه. اگه نداشته باشی، برنامه خودش موقع اجرای اول بهت می‌گه و لینک دانلود رو نشونت می‌ده — ولی اگه دوست داری از قبل نصبش کنی:',
+      'vlc.local': 'سایت داخلی', 'vlc.intl': 'سایت بین‌الملل',
+      'ab.kicker': 'درباره', 'ab.title': 'ساخته‌ی کیه؟',
+      'ab.creator': 'سی‌نور رو از صفر ساخت', 'ab.studio': 'انجمن و آپدیت‌ها',
+      'ab.telegram': 'تلگرام', 'ab.instagram': 'اینستاگرام', 'ab.donate': 'حمایت',
+      'ab.discord': 'دیسکورد', 'ab.releases': 'دانلود CNor',
+      'foot.rights': '© <span id="yr"></span> Noir Studios · همه حقوق محفوظه',
+      'foot.top': 'برگرد بالا ↑',
+      'dl.loading': 'در حال بررسی…'
+    },
+    en: {
+      'nav.download': 'Download', 'nav.features': 'Features', 'nav.how': 'How it works', 'nav.about': 'About',
+      'hero.line1': "Distance doesn't matter anymore.",
+      'hero.line2': 'Watch your favourite films and shows at the same time as the people you love.',
+      'hero.cta': 'Download for Windows', 'hero.cta2': 'How does it work?',
+      'hero.m1': 'Completely free', 'hero.m2': 'No servers, no subscription', 'hero.m3': 'Persian & English',
+      'dl.kicker': 'Download', 'dl.title': 'Start right now',
+      'dl.sub': 'Installing takes under a minute. After that, just open a room and send the address to your friends.',
+      'dl.win': 'Windows', 'dl.winSub': 'Windows 10 & 11 · 64-bit',
+      'dl.version': 'Version', 'dl.size': 'Size', 'dl.updated': 'Updated',
+      'dl.btn': 'Download installer',
+      'dl.note': 'CNor updates itself from here on — you never have to come back to this page for a new version.',
+      'dl.s1': 'Download and run the installer. CNor installs into <b>Program Files</b>.',
+      'dl.s2': 'On first launch it asks whether you have <b>VLC</b>. If you don’t, it hands you the download links.',
+      'dl.s3': 'Open a room, send the address to your friends, and <b>watch together</b>.',
+      'ft.kicker': 'Features', 'ft.title': 'Everything a film night needs',
+      'ft.sub': "CNor doesn't try to be a video player — it keeps everyone else's player on exactly the same frame as yours.",
+      'ft.1t': 'Frame-tight sync', 'ft.1b': 'Play, pause and seek happen for everyone at once. If someone falls behind, CNor eases them back into place.',
+      'ft.2t': 'Rooms with friends', 'ft.2b': 'Open a room, with a password or without. Everyone who joins shows up in the list, and you can chat as you watch.',
+      'ft.3t': 'Own copy or stream', 'ft.3b': 'Either everyone opens their own file, or it streams straight from your machine — nothing gets uploaded anywhere.',
+      'ft.4t': 'Private, serverless', 'ft.4b': 'No file ever touches a server. The connection is directly between you, and a video link stays with the host alone.',
+      'ft.5t': 'Persian, properly RTL', 'ft.5b': 'The whole app is built right-to-left in Persian — not a half-finished translation of an English interface.',
+      'ft.6t': 'Automatic updates', 'ft.6b': 'When a new version lands, CNor fetches and installs it on its own. No need to come back here.',
+      'how.kicker': 'How it works', 'how.title': 'Three steps to press play',
+      'how.n1': '1', 'how.n2': '2', 'how.n3': '3',
+      'how.1t': 'Open a room', 'how.1b': 'Pick a name and a password if you want one. CNor hands you the room address.',
+      'how.2t': 'Invite your friends', 'how.2b': 'Send them the address. They paste it into their own copy of CNor and walk in.',
+      'how.3t': 'Press play', 'how.3b': 'Choose the film and hit play. From there on everything stays in sync by itself.',
+      'vlc.title': 'One small thing: you need VLC',
+      'vlc.body': 'CNor plays video through VLC. If you don’t have it, the app tells you on first launch and shows you the download links — but if you’d rather get it in advance:',
+      'vlc.local': 'Iran mirror', 'vlc.intl': 'Official site',
+      'ab.kicker': 'About', 'ab.title': 'Who made this?',
+      'ab.creator': 'Built CNor from the ground up', 'ab.studio': 'Community & updates',
+      'ab.telegram': 'Telegram', 'ab.instagram': 'Instagram', 'ab.donate': 'Donate',
+      'ab.discord': 'Discord', 'ab.releases': 'Download CNor',
+      'foot.rights': '© <span id="yr"></span> Noir Studios · All rights reserved',
+      'foot.top': 'Back to top ↑',
+      'dl.loading': 'Checking…'
+    }
+  };
+
+  var html = document.documentElement;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- language ------------------------------------------------------- */
+  function applyLang(lang) {
+    html.lang = lang;
+    html.dir = lang === 'fa' ? 'rtl' : 'ltr';
+    document.body.style.setProperty('--dirmul', lang === 'fa' ? '-1' : '1');
+
+    var dict = COPY[lang];
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var v = dict[el.getAttribute('data-i18n')];
+      if (v != null) el.innerHTML = v;
+    });
+
+    document.querySelectorAll('.lang button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+
+    stampYear();
+    try { localStorage.setItem('cnor.lang', lang); } catch (e) {}
+  }
+
+  function stampYear() {
+    var y = document.getElementById('yr');
+    if (y) y.textContent = new Date().getFullYear();
+  }
+
+  document.querySelectorAll('.lang button').forEach(function (b) {
+    b.addEventListener('click', function () { applyLang(b.dataset.lang); });
+  });
+
+  var saved = null;
+  try { saved = localStorage.getItem('cnor.lang'); } catch (e) {}
+  applyLang(saved === 'en' || saved === 'fa' ? saved : 'fa');
+
+  /* ---- reveal on scroll ------------------------------------------------ */
+  var targets = document.querySelectorAll('[data-reveal]');
+  if (reduced || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---- sticky nav ------------------------------------------------------ */
+  var nav = document.getElementById('nav');
+  var onScroll = function () { nav.classList.toggle('stuck', window.scrollY > 12); };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ---- cursor spotlight + card sheen ----------------------------------- */
+  if (!reduced && window.matchMedia('(pointer: fine)').matches) {
+    var spot = document.getElementById('spot');
+    var tx = window.innerWidth / 2, ty = window.innerHeight / 2, cx = tx, cy = ty, raf = null;
+
+    var loop = function () {
+      cx += (tx - cx) * 0.12;
+      cy += (ty - cy) * 0.12;
+      spot.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+      raf = Math.abs(tx - cx) > 0.4 || Math.abs(ty - cy) > 0.4 ? requestAnimationFrame(loop) : null;
+    };
+
+    window.addEventListener('mousemove', function (e) {
+      tx = e.clientX; ty = e.clientY;
+      if (!raf) raf = requestAnimationFrame(loop);
+    }, { passive: true });
+
+    document.querySelectorAll('.card').forEach(function (card) {
+      card.addEventListener('mousemove', function (e) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      }, { passive: true });
+    });
+  }
+
+  /* ---- live release info ------------------------------------------------
+     Reads dl/release.json, which `npm run release` regenerates every time a
+     build is staged, so the version, size, date and download link all follow
+     whatever was published last — the page never has to be edited by hand.
+     `rel.url` points at a Cloudflare Worker proxy rather than this domain
+     directly — plain github.io downloads measured ~80 KB/s on some Iranian
+     ISPs (domain-based throttling, not a CDN issue), while the proxy measured
+     20+ MB/s serving the exact same bytes.
+     --------------------------------------------------------------------- */
+  function fmtSize(bytes) {
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  fetch('dl/release.json', { cache: 'no-cache' })
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+    .then(function (rel) {
+      if (rel.version) document.getElementById('verTxt').textContent = rel.version;
+      if (rel.size) document.getElementById('sizeTxt').textContent = fmtSize(rel.size);
+      if (rel.url) document.getElementById('dlBtn').href = rel.url;
+      else if (rel.file) document.getElementById('dlBtn').href = 'dl/' + rel.file;
+
+      var when = rel.published ? new Date(rel.published) : null;
+      if (when) {
+        document.getElementById('dateTxt').textContent = when.toLocaleDateString(
+          html.lang === 'fa' ? 'fa-IR' : 'en-GB',
+          { year: 'numeric', month: 'short', day: 'numeric' }
+        );
+      }
+    })
+    .catch(function () {
+      /* Offline or the manifest hasn't been staged yet: the button keeps the
+         hardcoded href baked in at the last release, which still works. */
+      document.getElementById('dateTxt').textContent = '—';
+    });
+})();
+</script>
+</body>
+</html>
