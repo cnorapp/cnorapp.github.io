@@ -1,8 +1,8 @@
-version: 1.1.5
+version: 1.1.6
 files:
-  - url: https://cnor-dl.cnor-dl-worker.workers.dev/dl/CNor-1.1.5-x64.exe
-    sha512: Po7yDyB81LkJ4HOb4RjPlXRO28lcg3b4CqcK6CNY24lY++pfJ3qXcaMn7yaGQoBvTf03cnrzDp/Xmb19rHIu0g==
-    size: 76001288
-path: https://cnor-dl.cnor-dl-worker.workers.dev/dl/CNor-1.1.5-x64.exe
-sha512: Po7yDyB81LkJ4HOb4RjPlXRO28lcg3b4CqcK6CNY24lY++pfJ3qXcaMn7yaGQoBvTf03cnrzDp/Xmb19rHIu0g==
-releaseDate: '2026-08-09T17:39:43.760Z'
+  - url: https://cnor-dl.cnor-dl-worker.workers.dev/dl/CNor-1.1.6-x64.exe
+    sha512: o7K95jZjxTdTiVZ98Ep4gjsBcut5n/3EqQlCmLwzvCoJ+qsZT2ojAQlhoHs7zWXTIcMrBUApfCE+3C1Ujil/ww==
+    size: 76003891
+path: https://cnor-dl.cnor-dl-worker.workers.dev/dl/CNor-1.1.6-x64.exe
+sha512: o7K95jZjxTdTiVZ98Ep4gjsBcut5n/3EqQlCmLwzvCoJ+qsZT2ojAQlhoHs7zWXTIcMrBUApfCE+3C1Ujil/ww==
+releaseDate: '2026-08-09T17:49:51.817Z'
