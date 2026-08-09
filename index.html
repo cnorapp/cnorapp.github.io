@@ -1376,7 +1376,10 @@ body.swapping { opacity: 0.25; }
 @media (max-width: 860px) {
   .nav-links { display: none; }
   .burger { display: grid; }
-  .hero { min-height: auto; padding-top: 96px; }
+  /* Full-screen on phones too, not just desktop: at `auto` the content was
+     short enough that the features badge peeked in above the fold, so the
+     hero read as a half-scrolled state instead of its own screen. */
+  .hero { min-height: 100svh; padding-top: 96px; }
   /* On a tall, narrow phone the height-driven size blows the artwork up to
      several times the viewport width, so the crop swallows the side screens.
      Below this breakpoint the width leads instead. */
@@ -1386,6 +1389,14 @@ body.swapping { opacity: 0.25; }
     top: clamp(84px, 13svh, 132px);
   }
   .hero-in { padding-top: min(18svh, 165px); }
+  /* Sitting this close to the CTA buttons read as glued to them rather than
+     as its own element anchored to the screen's edge. */
+  .cue { bottom: clamp(28px, 6svh, 56px); }
+  /* The 80% cap makes sense on desktop's two-column grid, where it keeps a
+     lone card from stretching edge to edge; in the single-column mobile
+     layout it just left a bare gap on one side, since RTL/LTR both align
+     these cards to the same edge instead of centring them. */
+  .person { max-width: 100%; }
 }
 @media (min-width: 861px) {
   .sheet { display: none !important; }
@@ -2036,13 +2047,21 @@ body.swapping { opacity: 0.25; }
      change this broad without animating every element by hand. Browsers
      without it (and anyone who asked for reduced motion) get the plain fade
      defined in the stylesheet, or no animation at all.
+
+     Phones get the plain fade too, even though most of them do support the
+     API: rasterising a full-page before/after snapshot pair and animating a
+     clip-path circle across it is expensive, and on mid-range mobile GPUs it
+     showed up as exactly the stutter it's supposed to hide. `pointer: coarse`
+     is a reasonable stand-in for "probably a phone" without a device-tier
+     check we can't actually run from CSS.
      --------------------------------------------------------------------- */
   var vtSupported = typeof document.startViewTransition === 'function';
+  var coarsePointer = window.matchMedia('(pointer: coarse)').matches;
 
   function swap(kind, mutate, decorate) {
     if (reduced) { mutate(); delete html.dataset.vtDir; return; }
 
-    if (!vtSupported) {
+    if (!vtSupported || coarsePointer) {
       document.body.classList.add('swapping');
       setTimeout(function () {
         mutate();
@@ -2096,7 +2115,7 @@ body.swapping { opacity: 0.25; }
   themeBtn.addEventListener('click', function () {
     var next = html.dataset.theme === 'light' ? 'dark' : 'light';
 
-    if (!vtSupported && !reduced) {
+    if ((!vtSupported || coarsePointer) && !reduced) {
       /* No snapshot to cross-fade, so ease the colours themselves instead.
          The class comes straight back off — a permanent transition on every
          element would drag on every hover for the rest of the session. */
@@ -2139,6 +2158,10 @@ body.swapping { opacity: 0.25; }
   function setMenu(open) {
     burger.setAttribute('aria-expanded', String(open));
     sheet.hidden = !open;
+    /* Without this the page behind the scrim still scrolls under a thumb
+       swipe, which reads as the menu not really being "open" over the page
+       so much as floating on top of it. */
+    html.classList.toggle('locked', open);
   }
   burger.addEventListener('click', function () {
     setMenu(burger.getAttribute('aria-expanded') !== 'true');
