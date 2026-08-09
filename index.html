@@ -2387,9 +2387,12 @@ body.swapping { opacity: 0.25; }
       if (rel.version) document.getElementById('verTxt').textContent = rel.version;
       if (rel.size) document.getElementById('sizeTxt').textContent = fmtSize(rel.size);
 
-      /* The download buttons stay disabled until the app itself is ready —
-         wiring up the link here would let people grab a build that isn't
-         meant to ship yet. Re-enable this once that's no longer true. */
+      if (rel.url) {
+        var dlBtn = document.getElementById('dlBtn');
+        dlBtn.href = rel.url;
+        dlBtn.classList.remove('disabled');
+        dlBtn.removeAttribute('aria-disabled');
+      }
 
       if (rel.published) { published = new Date(rel.published); stampDate(); }
       document.getElementById('dlFacts').classList.remove('pending');
