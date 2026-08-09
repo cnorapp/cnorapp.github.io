@@ -5,7 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>CNor — با هم ببینیم</title>
 <meta name="description" content="سی‌نور فیلم و سریال رو بین تو و دوستات هماهنگ نگه می‌داره. پخش، مکث و پرش همه همزمان. رایگان، بدون سرور، برای ویندوز." />
-<meta name="theme-color" content="#07070a" />
+<meta name="theme-color" content="#07070a" id="themeColor" />
+<meta name="color-scheme" content="dark light" />
+
+<!-- Theme has to be settled before the first paint, otherwise a visitor who
+     chose light gets a full-screen flash of the dark boot screen first. This
+     is the only script in the head, and it is deliberately tiny. -->
+<script>
+(function () {
+  var t = 'dark';
+  try { var s = localStorage.getItem('cnor.theme'); if (s === 'light' || s === 'dark') t = s; } catch (e) {}
+  document.documentElement.dataset.theme = t;
+  if (t === 'light') document.getElementById('themeColor').content = '#f2f3f6';
+
+  /* The hero artwork is the LCP element and comes in two variants, so the
+     preload has to name the one this visitor will actually see — a static
+     tag would fetch the wrong file for half of them. */
+  var l = document.createElement('link');
+  l.rel = 'preload';
+  l.as = 'image';
+  l.href = 'assets/hero-' + t + '.webp';
+  document.head.appendChild(l);
+})();
+</script>
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="CNor" />
@@ -18,21 +40,142 @@
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="canonical" href="https://cnorapp.github.io/" />
 
-<link rel="icon" type="image/png" href="assets/icon.png" />
-<link rel="apple-touch-icon" href="assets/icon.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="assets/icon-64.png" />
+<link rel="apple-touch-icon" href="assets/icon-192.png" />
 
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+<!-- Fonts are served from this origin on purpose. The page used to pull
+     Vazirmatn from jsDelivr and Inter from Google Fonts, which meant three
+     extra DNS+TLS handshakes and two render-blocking stylesheets before a
+     single pixel could paint — the reason the site felt slow from outside
+     Iran. These two files are the variable-weight subsets (Arabic from
+     Vazirmatn, Latin from Inter), 94 KB together, and cover every weight the
+     page uses. -->
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/vazirmatn-arabic.woff2" crossorigin />
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/inter-latin.woff2" crossorigin />
+<link rel="preload" as="image" href="assets/icon-192.png" />
+<!-- The hero artwork's preload is injected by the theme script above, which
+     is the only thing that knows which of the two variants to fetch. -->
 
 <style>
+/* ==========================================================================
+   Boot screen. Deliberately first in the stylesheet and dependency-free so
+   it paints on the very first frame, before fonts or images resolve.
+   ========================================================================== */
+#boot {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  background: var(--void);
+  /* Safety net: if the script never runs (blocked, parse error, very old
+     browser) the overlay still takes itself down instead of trapping the
+     visitor behind a splash forever. */
+  animation: bootBail 8s linear forwards;
+}
+#boot.gone {
+  animation: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.55s ease, visibility 0.55s;
+}
+@keyframes bootBail {
+  0%, 92% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+.boot-in { display: grid; justify-items: center; }
+
+.boot-mark {
+  position: relative;
+  /* Wide enough that the ring clears the icon's rounded corners instead of
+     shaving them. */
+  width: 128px;
+  height: 128px;
+  display: grid;
+  place-items: center;
+}
+.boot-mark img {
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
+  display: block;
+}
+/* The ring is drawn as a conic sweep masked into a 2px band, so it costs one
+   composited rotation rather than an SVG stroke animation. */
+.boot-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 62%, var(--accent-3) 88%, transparent 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+  animation: bootSpin 1.05s linear infinite;
+}
+@keyframes bootSpin { to { transform: rotate(1turn); } }
+
+.boot-name {
+  margin-top: 22px;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  direction: ltr;
+}
+.boot-name i { font-style: normal; color: var(--accent-text); }
+
+.boot-bar {
+  margin-top: 16px;
+  width: 148px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.boot-bar i {
+  display: block;
+  height: 100%;
+  width: var(--p, 8%);
+  border-radius: inherit;
+  background: var(--accent-grad);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-mark::after { animation: none; opacity: 0.5; }
+  .boot-bar i { transition: none; }
+}
+
+/* ==========================================================================
+   Fonts — self-hosted variable subsets.
+   ========================================================================== */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("assets/fonts/vazirmatn-arabic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  /* Persian/Arabic block plus ZWNJ and the Persian digits. Latin inside a
+     Persian sentence deliberately falls through to Inter below. */
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+200C-200E, U+2010-2011, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("assets/fonts/inter-latin.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ==========================================================================
    Tokens — lifted straight from the app's design system so the site and the
    product read as one thing.
    ========================================================================== */
-:root {
+:root, :root[data-theme="dark"] {
   --void: #07070a;
   --void-2: #0d0d13;
 
@@ -43,14 +186,58 @@
   --accent-wash: rgba(95, 224, 168, 0.12);
   --accent-fill: rgba(95, 224, 168, 0.22);
   --accent-glow: rgba(95, 224, 168, 0.4);
+  /* Accent used as *foreground* — text, icon strokes, hairlines. Split from
+     --accent because the light theme needs a much darker green to stay
+     readable, while the mint button fills have to stay mint. */
+  --accent-text: var(--accent-2);
+  --accent-line: rgba(95, 224, 168, 0.22);
 
   --text: #f5f3f0;
-  --text-2: #a9a4a0;
-  --text-3: #87817c;
+  --text-2: #b3aeaa;
+  --text-3: #928c87;
 
   --glass-1: rgba(255, 255, 255, 0.045);
   --glass-2: rgba(255, 255, 255, 0.075);
-  --glass-blur: blur(40px) saturate(125%);
+
+  /* Surface tiers, so a theme swap is a token change rather than fifty
+     hand-edited rgba() literals. */
+  --surface-1: rgba(255, 255, 255, 0.035);
+  --surface-2: rgba(255, 255, 255, 0.05);
+  --surface-3: rgba(255, 255, 255, 0.06);
+  --surface-4: rgba(255, 255, 255, 0.075);
+  --line-1: rgba(255, 255, 255, 0.05);
+  --glass-grad: linear-gradient(170deg, rgba(255,255,255,0.075), rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.03));
+
+  /* Translucent bars that sit over scrolling content. */
+  --veil-1: rgba(8, 8, 11, 0.72);
+  --veil-2: rgba(9, 9, 13, 0.94);
+  --veil-drop: 0 12px 34px -18px rgba(0, 0, 0, 0.9);
+
+  --thumb: rgba(255, 255, 255, 0.13);
+  --thumb-hover: rgba(255, 255, 255, 0.26);
+
+  --wordmark-grad: linear-gradient(170deg, #fff 12%, #b9b4ae 96%);
+  /* --accent-grad fills a surface that carries --accent-ink on top, so it has
+     to stay mint in both themes. --accent-grad-text paints glyphs directly
+     against the page and has to darken with the light theme. Keeping them as
+     one token put near-black text on a dark green button. */
+  --accent-grad: linear-gradient(170deg, var(--accent-2), var(--accent));
+  --accent-grad-text: var(--accent-grad);
+  --numeral-grad: linear-gradient(170deg, var(--accent-2), rgba(95, 224, 168, 0.25));
+
+  /* Atmosphere dials */
+  --lamp-op: 0.5;
+  --blind: rgba(255, 255, 255, 0.022);
+  --grain-op: 0.22;
+  --vignette: rgba(0, 0, 0, 0.5);
+  --spot: rgba(95, 224, 168, 0.055);
+  --bloom: rgba(95, 224, 168, 0.17);
+  --sheen: rgba(95, 224, 168, 0.1);
+
+  /* Windows SmartScreen warning */
+  --warn: #ffc454;
+  --warn-bg: rgba(255, 196, 84, 0.07);
+  --warn-line: rgba(255, 196, 84, 0.18);
 
   --hair: rgba(255, 255, 255, 0.09);
   --hair-2: rgba(255, 255, 255, 0.14);
@@ -74,24 +261,118 @@
   --gutter: clamp(20px, 5vw, 56px);
   --maxw: 1180px;
 
-  --font-fa: "Vazirmatn", "Segoe UI", system-ui, sans-serif;
+  --font-fa: "Vazirmatn", "Inter", "Segoe UI", system-ui, sans-serif;
   --font-en: "Inter", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
   --font: var(--font-fa);
 
   --lh: 1.75;
   --track: 0;
+  --dirmul: -1;
+
+  --hero-img: url("assets/hero-dark.webp");
 }
 
-html[lang="en"] {
+/* --------------------------------------------------------------------------
+   Light theme. Only the tokens change — no rule below this point knows which
+   theme is active. The mint fills stay mint (they carry dark ink on top), but
+   every use of the accent as *text* switches to a darker green that clears
+   4.5:1 against the paper background.
+   -------------------------------------------------------------------------- */
+:root[data-theme="light"] {
+  /* The page is the tinted layer and the cards are pure white — the inverse
+     of the dark theme, where cards are lifted *above* the page. A white card
+     on a near-white page reads as nothing at all, so the paper is pulled well
+     off white and every card edge is a real 1px line, not a 7% ghost. */
+  --void: #e9ecf1;
+  --void-2: #f6f7fa;
+
+  --accent: #5fe0a8;
+  --accent-2: #8fecc3;
+  --accent-3: #0d8158;
+  --accent-ink: #032115;
+  --accent-wash: rgba(9, 116, 79, 0.1);
+  --accent-fill: rgba(9, 116, 79, 0.2);
+  --accent-glow: rgba(9, 116, 79, 0.3);
+  --accent-text: #08704c;
+  --accent-line: rgba(9, 116, 79, 0.28);
+
+  --text: #101319;
+  --text-2: #454c56;
+  /* Measured against the white card surface *and* the page: anything lighter
+     drops the muted text under the 4.5:1 floor on one of them. */
+  --text-3: #5a616b;
+
+  --glass-1: #ffffff;
+  --glass-2: #ffffff;
+
+  /* Tiles sitting inside a white card, so these have to be visibly grey —
+     the dark theme's near-transparent values disappear completely here. */
+  --surface-1: rgba(16, 24, 38, 0.05);
+  --surface-2: rgba(16, 24, 38, 0.065);
+  --surface-3: rgba(16, 24, 38, 0.1);
+  --surface-4: #ffffff;
+  --line-1: rgba(16, 24, 38, 0.1);
+  --glass-grad: linear-gradient(170deg, #ffffff, #fdfdff 45%, #fbfcff);
+
+  --veil-1: rgba(240, 242, 247, 0.82);
+  --veil-2: rgba(246, 247, 251, 0.97);
+  --veil-drop: 0 12px 32px -18px rgba(16, 24, 38, 0.3);
+
+  --thumb: rgba(16, 24, 38, 0.22);
+  --thumb-hover: rgba(16, 24, 38, 0.4);
+
+  --wordmark-grad: linear-gradient(170deg, #0b0e14 12%, #3d444f 96%);
+  --accent-grad: linear-gradient(170deg, var(--accent-2), var(--accent));
+  --accent-grad-text: linear-gradient(170deg, #0f9c6a, var(--accent-text));
+  --numeral-grad: linear-gradient(170deg, var(--accent-text), rgba(8, 112, 76, 0.32));
+
+  /* The atmosphere is a lit room seen in the dark. In daylight it has to drop
+     to almost nothing — grain in particular reads as dirt on white. */
+  --lamp-op: 0.16;
+  --blind: rgba(16, 24, 38, 0.02);
+  --grain-op: 0.018;
+  --vignette: rgba(16, 24, 38, 0.06);
+  --spot: rgba(9, 116, 79, 0.04);
+  --bloom: rgba(9, 116, 79, 0.1);
+  --sheen: rgba(9, 116, 79, 0.07);
+
+  --warn: #8a5600;
+  --warn-bg: rgba(196, 132, 12, 0.13);
+  --warn-line: rgba(138, 86, 0, 0.3);
+
+  --hair: rgba(16, 24, 38, 0.13);
+  --hair-2: rgba(16, 24, 38, 0.26);
+
+  /* No white top-highlight: on a white surface it is invisible, and the only
+     thing carrying the card edge is the hairline. */
+  --rim: inset 0 0 0 1px rgba(16, 24, 38, 0.11);
+  --rim-strong: inset 0 0 0 1px rgba(3, 33, 21, 0.18);
+  --sh-1: 0 1px 2px rgba(16, 24, 38, 0.07), 0 3px 8px -2px rgba(16, 24, 38, 0.09);
+  --sh-2: 0 2px 6px -2px rgba(16, 24, 38, 0.08), 0 14px 34px -12px rgba(16, 24, 38, 0.16);
+  --sh-3: 0 6px 18px -6px rgba(16, 24, 38, 0.12), 0 32px 64px -24px rgba(16, 24, 38, 0.24);
+
+  --hero-img: url("assets/hero-light.webp");
+}
+
+/* :root[lang="en"], not html[lang="en"]: the two theme blocks above both key
+   off :root[data-theme="..."], which has higher specificity than a bare
+   `html[attr]` selector. That silently lost this whole block to the dark
+   theme's tokens whenever the language was English and the theme was dark —
+   wrong font, wrong line-height, and the chevrons in the mobile menu below
+   pointing the wrong way. Matching the selector *shape* used above ties the
+   specificity, and source order (this block comes last) settles the tie. */
+:root[lang="en"] {
   --font: var(--font-en);
   --lh: 1.55;
   --track: -0.006em;
+  --dirmul: 1;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: 88px; }
+html.locked { overflow: hidden; }
 
 body {
   min-height: 100%;
@@ -102,7 +383,6 @@ body {
   line-height: var(--lh);
   letter-spacing: var(--track);
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
@@ -115,27 +395,51 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.13);
+  background: var(--thumb);
   border: 3px solid transparent;
   background-clip: content-box;
   border-radius: var(--r-pill);
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.26); background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--thumb-hover); background-clip: content-box; }
 
 :focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-fill), 0 0 0 1px var(--accent); border-radius: var(--r-sm); }
+
+/* Keyboard users get a way past the nav without tabbing through it. */
+.skip {
+  position: fixed;
+  top: 10px;
+  inset-inline-start: 10px;
+  z-index: 200;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 14px;
+  font-weight: 600;
+  transform: translateY(-160%);
+  transition: transform 0.24s var(--e-out);
+}
+.skip:focus-visible { transform: none; }
 
 /* --------------------------------------------------------------------------
    Atmosphere — the lit room the glass floats over. Same layer stack the app
    uses, so the two feel like one continuous surface.
+
+   Rebuilt for cost: the lamp used to be four gradients pushed through a
+   filter: blur(70px) over the whole viewport, and the grain was an SVG
+   turbulence layer with mix-blend-mode animating four times a second,
+   forever. Together those kept the compositor busy the entire time the page
+   was open. The gradients are soft enough on their own, so the filter is
+   gone, and the grain is now a static rasterised layer.
    -------------------------------------------------------------------------- */
 .atmos {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  /* The lamp/blinds/grain layers all deliberately overhang their box so their
-     edges never show. Without clipping here that overhang widens the document
-     and hands narrow screens a phantom horizontal scroll. */
+  /* The lamp/blinds layers deliberately overhang their box so their edges
+     never show. Without clipping here that overhang widens the document and
+     hands narrow screens a phantom horizontal scroll. */
   overflow: hidden;
   background: radial-gradient(120% 90% at 50% 0%, var(--void-2), var(--void) 70%);
 }
@@ -143,14 +447,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: absolute;
   inset: -25%;
   background:
-    radial-gradient(38% 32% at 58% -4%, var(--accent), transparent 66%),
-    radial-gradient(34% 38% at 6% 88%, #4b6ad0, transparent 68%),
-    radial-gradient(40% 36% at 86% 30%, #2f9b7f, transparent 70%),
-    radial-gradient(36% 34% at 74% 96%, #2f7fb8, transparent 72%);
-  opacity: 0.2;
-  filter: blur(70px);
-  animation: drift 34s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
-  will-change: transform;
+    radial-gradient(46% 40% at 58% -4%, rgba(95, 224, 168, 0.5), transparent 70%),
+    radial-gradient(42% 46% at 6% 88%, rgba(75, 106, 208, 0.45), transparent 72%),
+    radial-gradient(48% 44% at 86% 30%, rgba(47, 155, 127, 0.42), transparent 74%),
+    radial-gradient(44% 42% at 74% 96%, rgba(47, 127, 184, 0.42), transparent 76%);
+  opacity: var(--lamp-op);
+  animation: drift 40s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate;
 }
 @keyframes drift { to { transform: translate3d(-3%, 2.5%, 0) scale(1.08); } }
 
@@ -160,38 +462,27 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: repeating-linear-gradient(
     102deg,
     transparent 0 46px,
-    rgba(255, 255, 255, 0.022) 46px 52px,
+    var(--blind) 46px 52px,
     transparent 52px 98px
   );
   -webkit-mask-image: radial-gradient(52% 58% at 70% 4%, #000, transparent 76%);
   mask-image: radial-gradient(52% 58% at 70% 4%, #000, transparent 76%);
-  animation: blinds 52s linear infinite;
-  will-change: transform;
+  animation: blinds 60s linear infinite;
 }
 @keyframes blinds { to { transform: translate3d(-98px, 22px, 0); } }
 
 .atmos-grain {
   position: absolute;
-  inset: -100px;
-  width: calc(100% + 200px);
-  height: calc(100% + 200px);
-  opacity: 0.28;
-  mix-blend-mode: overlay;
-  animation: grain 0.7s steps(4) infinite;
-  will-change: transform;
-}
-@keyframes grain {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-14px, 9px); }
-  50% { transform: translate(11px, -12px); }
-  75% { transform: translate(-8px, -6px); }
-  100% { transform: translate(0, 0); }
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: var(--grain-op);
 }
 
 .atmos-vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(130% 110% at 50% 36%, transparent 46%, rgba(0, 0, 0, 0.5) 100%);
+  background: radial-gradient(130% 110% at 50% 36%, transparent 46%, var(--vignette) 100%);
 }
 
 .atmos-spot {
@@ -200,9 +491,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   width: 680px; height: 680px;
   margin: -340px 0 0 -340px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(95, 224, 168, 0.055), transparent 62%);
+  background: radial-gradient(circle, var(--spot), transparent 62%);
   will-change: transform;
-  transition: opacity 0.4s;
 }
 
 /* --------------------------------------------------------------------------
@@ -210,11 +500,18 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    -------------------------------------------------------------------------- */
 .wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
 
+/* Plain glass: gradient + rim, no backdrop-filter. There are two dozen of
+   these on the page and the surface behind them is a smooth gradient, so a
+   real backdrop blur cost a full-page readback per card and bought almost no
+   visible difference. .glass-live below keeps the true effect for the few
+   surfaces that actually sit over moving content. */
 .glass {
-  background: linear-gradient(170deg, rgba(255,255,255,0.075), rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.03));
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  background: var(--glass-grad);
   box-shadow: var(--rim), var(--sh-2);
+}
+.glass-live {
+  -webkit-backdrop-filter: blur(28px) saturate(130%);
+  backdrop-filter: blur(28px) saturate(130%);
 }
 
 .kicker {
@@ -223,15 +520,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   gap: 8px;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--accent-2);
+  color: var(--accent-text);
   padding: 6px 14px;
   border-radius: var(--r-pill);
   background: var(--accent-wash);
-  box-shadow: inset 0 0 0 1px rgba(95, 224, 168, 0.2);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
 }
 .kicker .dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-text);
   box-shadow: 0 0 10px var(--accent-glow);
   animation: pulse 2.4s var(--e-out) infinite;
 }
@@ -257,6 +554,14 @@ html[lang="en"] h1, html[lang="en"] h2, html[lang="en"] h3 { letter-spacing: -0.
 
 section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px); }
 
+/* Sections below the fold are skipped entirely during the first layout and
+   paint, then rendered as they approach the viewport. The reserved height
+   keeps the scrollbar honest so nothing jumps. */
+#features, #how, #faq, #about, #support {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
 /* Buttons ------------------------------------------------------------------ */
 .btn {
   position: relative;
@@ -265,17 +570,17 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   justify-content: center;
   gap: 10px;
   padding: 14px 26px;
+  min-height: 48px;
   border-radius: var(--r-pill);
   font-weight: 600;
   font-size: 15.5px;
   white-space: nowrap;
   transition: transform 0.28s var(--spring), box-shadow 0.28s var(--e-out), background 0.24s;
-  will-change: transform;
 }
 .btn svg { flex: none; }
 
 .btn.primary {
-  background: linear-gradient(165deg, var(--accent-2), var(--accent));
+  background: var(--accent-grad);
   color: var(--accent-ink);
   box-shadow: var(--rim-strong), 0 6px 22px -6px var(--accent-glow), var(--sh-1);
 }
@@ -289,31 +594,23 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   background: var(--glass-1);
   color: var(--text);
   box-shadow: var(--rim);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
 }
 .btn.ghost:hover { background: var(--glass-2); transform: translateY(-2px); }
 .btn.ghost:active { transform: translateY(0) scale(0.985); }
 
-.btn.lg { padding: 17px 34px; font-size: 16.5px; }
-.btn.sm { padding: 10px 18px; font-size: 14px; }
+.btn.lg { padding: 17px 34px; font-size: 16.5px; min-height: 56px; }
 
-/* Shine sweep on the primary CTA */
-.btn.primary::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.45) 48%, transparent 62%);
-  transform: translateX(-140%);
-  opacity: 0;
+/* The build isn't ready to hand out yet, so the button stays visible (people
+   should still see the version/size facts) but can't actually be pressed. */
+.btn.disabled {
+  opacity: 0.5;
   pointer-events: none;
+  cursor: not-allowed;
+  box-shadow: var(--rim);
 }
-.btn.primary:hover::after { animation: sweep 0.9s var(--e-out); }
-@keyframes sweep {
-  0% { transform: translateX(-140%); opacity: 0.9; }
-  100% { transform: translateX(140%); opacity: 0; }
-}
+.btn.disabled:hover { transform: none; }
+.btn.sm { padding: 10px 18px; font-size: 14px; min-height: 42px; }
+.btn.block { width: 100%; }
 
 /* --------------------------------------------------------------------------
    Nav
@@ -322,20 +619,24 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   position: fixed;
   inset-inline: 0;
   top: 0;
-  z-index: 50;
-  transition: background 0.35s, box-shadow 0.35s, backdrop-filter 0.35s;
+  z-index: 60;
+  transition: background 0.35s, box-shadow 0.35s;
 }
+/* The header keeps a fixed physical layout in both languages — logo on the
+   left, controls on the right — so the language switch never jumps out from
+   under the pointer that just used it. Only the link text itself flips. */
 .nav-in {
+  direction: ltr;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   height: 68px;
 }
 .nav.stuck {
-  background: rgba(8, 8, 11, 0.7);
+  background: var(--veil-1);
   -webkit-backdrop-filter: blur(24px) saturate(140%);
   backdrop-filter: blur(24px) saturate(140%);
-  box-shadow: 0 1px 0 var(--hair), 0 12px 34px -18px rgba(0,0,0,0.9);
+  box-shadow: 0 1px 0 var(--hair), var(--veil-drop);
 }
 
 .brand { display: flex; align-items: center; gap: 11px; margin-inline-end: auto; }
@@ -347,7 +648,7 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   letter-spacing: -0.02em;
   direction: ltr;
 }
-.brand-name i { font-style: normal; color: var(--accent); }
+.brand-name i { font-style: normal; color: var(--accent-text); }
 
 .nav-links { display: flex; align-items: center; gap: 4px; }
 .nav-links a {
@@ -358,16 +659,18 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   transition: color 0.2s, background 0.2s;
 }
 .nav-links a:hover { color: var(--text); background: var(--glass-1); }
+/* Set by the scroll spy so the visitor always knows where they are. */
+.nav-links a[aria-current="true"] { color: var(--accent-2); background: var(--accent-wash); }
 
 .lang {
   display: flex;
   padding: 3px;
   border-radius: var(--r-pill);
-  background: rgba(255,255,255,0.05);
+  background: var(--surface-2);
   box-shadow: var(--rim);
 }
 .lang button {
-  padding: 6px 13px;
+  padding: 7px 13px;
   border-radius: var(--r-pill);
   font-size: 13px;
   font-weight: 600;
@@ -377,8 +680,123 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
 }
 .lang button[aria-pressed="true"] {
   color: var(--accent-ink);
-  background: linear-gradient(165deg, var(--accent-2), var(--accent));
+  background: var(--accent-grad);
   box-shadow: var(--sh-1);
+}
+
+/* Theme toggle. Sun and moon are stacked in one box and cross-faded, so the
+   button never changes size and nothing around it reflows on switch. */
+.theme {
+  position: relative;
+  width: 44px; height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  box-shadow: var(--rim);
+  color: var(--text-2);
+  transition: color 0.2s, background 0.2s;
+}
+.theme:hover { color: var(--text); background: var(--surface-3); }
+.theme svg {
+  grid-area: 1 / 1;
+  transition: opacity 0.32s var(--e-out), transform 0.44s var(--spring);
+}
+.theme .moon { opacity: 0; transform: rotate(-70deg) scale(0.55); }
+:root[data-theme="light"] .theme .sun { opacity: 0; transform: rotate(70deg) scale(0.55); }
+:root[data-theme="light"] .theme .moon { opacity: 1; transform: none; }
+
+/* Mobile menu -------------------------------------------------------------- */
+.burger {
+  display: none;
+  width: 44px; height: 44px;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: var(--rim);
+  color: var(--text);
+}
+.burger i {
+  position: relative;
+  display: block;
+  width: 17px; height: 1.8px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.3s var(--e-out), opacity 0.2s;
+}
+.burger i::before, .burger i::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  width: 17px; height: 1.8px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.3s var(--e-out);
+}
+.burger i::before { top: -5.5px; }
+.burger i::after { top: 5.5px; }
+.burger[aria-expanded="true"] i { background: transparent; }
+.burger[aria-expanded="true"] i::before { transform: translateY(5.5px) rotate(45deg); }
+.burger[aria-expanded="true"] i::after { transform: translateY(-5.5px) rotate(-45deg); }
+
+/* Full-height scrim rather than a box that only wraps its own content: the
+   old version left the rest of the page sitting there in full contrast right
+   under a plain list of links, which read as unfinished rather than a menu
+   that's actually open. */
+.sheet {
+  position: fixed;
+  inset-inline: 0;
+  top: 68px;
+  bottom: 0;
+  z-index: 55;
+  padding: 14px var(--gutter) 24px;
+  background: var(--veil-2);
+  -webkit-backdrop-filter: blur(26px) saturate(140%);
+  backdrop-filter: blur(26px) saturate(140%);
+  transform-origin: top;
+  transition: opacity 0.26s var(--e-out), transform 0.3s var(--e-out), visibility 0.3s;
+}
+.sheet[hidden] { opacity: 0; visibility: hidden; transform: translateY(-10px); pointer-events: none; }
+
+.sheet-card {
+  border-radius: var(--r-xl);
+  background: var(--glass-grad);
+  box-shadow: var(--rim), var(--sh-2);
+  overflow: hidden;
+}
+.sheet-link {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px 16px;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--line-1);
+  transition: background 0.2s, color 0.2s;
+}
+.sheet-link:last-child { border-bottom: none; }
+.sheet-link:hover, .sheet-link:focus-visible, .sheet-link:active { background: var(--glass-1); color: var(--text); }
+.sheet-ico {
+  flex: none;
+  width: 36px; height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  color: var(--accent-text);
+}
+.sheet-tx { flex: 1; }
+.sheet-chev {
+  flex: none;
+  color: var(--text-3);
+  opacity: 0.7;
+  /* The RTL page mirrors margin/inline direction automatically, but an SVG's
+     own path does not — without this the chevron points into the text on an
+     RTL row instead of out toward the trailing edge. --dirmul is -1 in fa,
+     1 in en, matching exactly the flip this needs. */
+  transform: scaleX(var(--dirmul));
 }
 
 /* --------------------------------------------------------------------------
@@ -389,24 +807,55 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   z-index: 1;
   min-height: 100svh;
   display: grid;
-  place-items: center;
-  padding-top: 96px;
-  padding-bottom: 64px;
+  /* Top-aligned, not centred: the copy's distance from the artwork is the
+     whole composition, and centring made it drift whenever the stack below
+     changed height. The offset lives on .hero-in's padding instead. */
+  align-items: start;
+  justify-items: center;
+  /* Overrides the blanket section padding: here the gap between the artwork
+     and the wordmark is the composition, and it is owned by .hero-in alone. */
+  padding-top: 0;
+  padding-bottom: 28px;
   text-align: center;
+  overflow: hidden;
 }
-.hero-in { display: flex; flex-direction: column; align-items: center; }
+/* Sits above .hero-visual, and the top padding is what drops the wordmark
+   down onto the lower third of the artwork instead of over the screens. */
+.hero-in {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: min(45svh, 430px);
+}
 
-.hero-icon {
-  width: clamp(104px, 15vw, 148px);
-  height: clamp(104px, 15vw, 148px);
-  border-radius: clamp(26px, 3.6vw, 38px);
-  box-shadow: var(--sh-3), 0 0 90px -20px var(--accent-glow);
-  animation: float 7s ease-in-out infinite;
-  will-change: transform;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-14px) rotate(-1.2deg); }
+/* The mockup collage sits *behind* the wordmark as the hero's backdrop. It is
+   a background-image driven by a per-theme token rather than an <img> swapped
+   by JS, so the correct variant paints on the very first frame with no flash,
+   before the page's own scripts run. */
+.hero-visual {
+  position: absolute;
+  /* Enough clearance that the artwork's top arc clears the floating header. */
+  top: clamp(28px, 5svh, 56px);
+  left: 50%;
+  transform: translateX(-50%);
+  /* Sized off the viewport *height*, not the width: the hero is a one-screen
+     composition, and driving it from the width let a short-but-wide window
+     push the buttons below the fold. */
+  height: min(70svh, 640px);
+  width: auto;
+  aspect-ratio: 1672 / 941;
+  z-index: 0;
+  pointer-events: none;
+  /* The edge feather is baked into the file's alpha channel rather than done
+     here with mask-image: `mask-composite: intersect` takes the *minimum* of
+     the two axis gradients, so corners stayed half-opaque and the rectangle
+     still read on the page. The baked version multiplies them instead. */
+  background-image: var(--hero-img);
+  background-size: contain;
+  background-position: center top;
+  background-repeat: no-repeat;
 }
 
 .wordmark {
@@ -417,14 +866,14 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   line-height: 0.98;
   letter-spacing: -0.045em;
   margin-top: 26px;
-  background: linear-gradient(170deg, #fff 12%, #b9b4ae 96%);
+  background: var(--wordmark-grad);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 .wordmark i {
   font-style: normal;
-  background: linear-gradient(170deg, var(--accent-2), var(--accent));
+  background: var(--accent-grad-text);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -440,21 +889,14 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
 
 .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 36px; }
 
-.hero-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  justify-content: center;
-  margin-top: 22px;
-  font-size: 13.5px;
-  color: var(--text-3);
-}
-.hero-meta span { display: inline-flex; align-items: center; gap: 7px; }
-.hero-meta svg { color: var(--accent); flex: none; }
-
-/* Scroll cue */
+/* Scroll cue. Pinned to the floor of the hero rather than stacked after the
+   buttons: it belongs to the bottom edge of the screen, and keeping it out of
+   the flow is what lets the copy still fit on a short laptop viewport. */
 .cue {
-  margin-top: clamp(34px, 6vw, 64px);
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 26px; height: 42px;
   border-radius: var(--r-pill);
   box-shadow: inset 0 0 0 1.5px var(--hair-2);
@@ -466,7 +908,7 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   display: block;
   width: 3.5px; height: 8px;
   border-radius: var(--r-pill);
-  background: var(--accent);
+  background: var(--accent-text);
   animation: cue 1.9s var(--e-out) infinite;
 }
 @keyframes cue {
@@ -486,7 +928,7 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   gap: 28px;
   grid-template-columns: 1fr;
 }
-@media (min-width: 860px) { .dl-card { grid-template-columns: 1.05fr 1fr; align-items: center; } }
+@media (min-width: 860px) { .dl-card { grid-template-columns: 1.05fr 1fr; align-items: start; } }
 
 .dl-main { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
 .dl-os { display: flex; align-items: center; gap: 14px; }
@@ -496,7 +938,7 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   border-radius: var(--r-lg);
   background: var(--glass-2);
   box-shadow: var(--rim);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .dl-os h3 { font-size: 21px; }
 .dl-os p { font-size: 14px; color: var(--text-3); }
@@ -508,12 +950,19 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   gap: 7px;
   padding: 7px 13px;
   border-radius: var(--r-pill);
-  background: rgba(255,255,255,0.05);
+  background: var(--surface-2);
   box-shadow: var(--rim);
   font-size: 13px;
   color: var(--text-2);
 }
 .chip b { color: var(--text); font-weight: 600; font-family: var(--font-mono); font-size: 12.5px; direction: ltr; }
+/* The version and size are always Latin/digits, so they stay ltr. The date
+   is Persian words in fa (day, month, year read right to left) — forcing
+   ltr on it scrambles that order, so it gets its own direction back. */
+html[lang="fa"] .chip b#dateTxt { direction: rtl; font-family: var(--font-fa); }
+/* Until the release manifest lands the values are placeholders, so they read
+   as pending rather than as fact. */
+.dl-facts.pending .chip b { color: var(--text-3); }
 
 /* Install steps */
 .steps { display: grid; gap: 14px; }
@@ -523,19 +972,19 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   align-items: flex-start;
   padding: 14px 16px;
   border-radius: var(--r-lg);
-  background: rgba(255,255,255,0.035);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.045);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--line-1);
   transition: background 0.24s, transform 0.28s var(--e-out);
 }
-.step:hover { background: rgba(255,255,255,0.06); transform: translateX(calc(-4px * var(--dirmul, 1))); }
+.step:hover { background: var(--surface-3); transform: translateX(calc(4px * var(--dirmul))); }
 .step .n {
   flex: none;
   width: 27px; height: 27px;
   display: grid; place-items: center;
   border-radius: 50%;
   background: var(--accent-wash);
-  box-shadow: inset 0 0 0 1px rgba(95,224,168,0.24);
-  color: var(--accent-2);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  color: var(--accent-text);
   font-size: 13px;
   font-weight: 700;
   font-family: var(--font-en);
@@ -543,6 +992,27 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
 }
 .step p { font-size: 14.5px; color: var(--text-2); }
 .step p b { color: var(--text); font-weight: 600; }
+
+/* The installer is not code-signed, so Windows shows a scary blue panel on
+   first run. Saying so up front turns a "is this a virus?" moment into an
+   expected step. */
+.note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--warn-bg);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.note svg { flex: none; color: var(--warn); margin-top: 3px; }
+.note b { color: var(--text); font-weight: 600; }
+
+.dl-hint { font-size: 13px; color: var(--text-3); }
 
 /* --------------------------------------------------------------------------
    Features
@@ -567,7 +1037,7 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), rgba(95,224,168,0.1), transparent 70%);
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), var(--sheen), transparent 70%);
   opacity: 0;
   transition: opacity 0.35s;
   pointer-events: none;
@@ -579,8 +1049,8 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   display: grid; place-items: center;
   border-radius: var(--r-md);
   background: var(--accent-wash);
-  box-shadow: inset 0 0 0 1px rgba(95,224,168,0.2);
-  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  color: var(--accent-text);
   margin-bottom: 18px;
 }
 .card h3 { font-size: 17.5px; }
@@ -601,7 +1071,7 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   font-size: 46px;
   font-weight: 800;
   line-height: 1;
-  background: linear-gradient(170deg, var(--accent-2), rgba(95,224,168,0.25));
+  background: var(--numeral-grad);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -625,6 +1095,54 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
 .vlc-links { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* --------------------------------------------------------------------------
+   FAQ — native <details>, so it works with zero JS and is keyboard- and
+   screen-reader-correct for free.
+   -------------------------------------------------------------------------- */
+.faq { display: grid; gap: 12px; margin-top: 48px; max-width: 820px; margin-inline: auto; }
+.qa {
+  border-radius: var(--r-lg);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--line-1);
+  overflow: hidden;
+  transition: background 0.24s;
+}
+.qa[open] { background: var(--surface-3); box-shadow: inset 0 0 0 1px var(--hair); }
+.qa summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  min-height: 56px;
+  cursor: pointer;
+  font-size: 15.5px;
+  font-weight: 600;
+  list-style: none;
+}
+.qa summary::-webkit-details-marker { display: none; }
+.qa summary::after {
+  content: "";
+  flex: none;
+  margin-inline-start: auto;
+  width: 9px; height: 9px;
+  /* Physical sides on purpose: a chevron pointing down means "expands" in
+     both directions, so mirroring it under RTL would aim it sideways. */
+  border-right: 2px solid var(--text-3);
+  border-bottom: 2px solid var(--text-3);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.28s var(--e-out), border-color 0.2s;
+}
+.qa[open] summary::after { transform: translateY(2px) rotate(-135deg); border-color: var(--accent-text); }
+.qa summary:hover::after { border-color: var(--text); }
+.qa .a {
+  padding: 0 20px 20px;
+  font-size: 14.5px;
+  color: var(--text-2);
+  max-width: 68ch;
+}
+.qa .a b { color: var(--text); font-weight: 600; }
+.qa .a a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+
+/* --------------------------------------------------------------------------
    Credits
    -------------------------------------------------------------------------- */
 .people { display: grid; gap: 16px; margin-top: 44px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
@@ -634,6 +1152,7 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   display: flex;
   flex-direction: column;
   gap: 18px;
+  max-width: 80%;
 }
 .person-head { display: flex; align-items: center; gap: 14px; }
 .person-head img { width: 52px; height: 52px; box-shadow: var(--sh-1); }
@@ -647,15 +1166,16 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 15px;
+  padding: 11px 15px;
+  min-height: 44px;
   border-radius: var(--r-pill);
-  background: rgba(255,255,255,0.05);
+  background: var(--surface-2);
   box-shadow: var(--rim);
   font-size: 13.5px;
   color: var(--text-2);
   transition: color 0.22s, background 0.22s, transform 0.28s var(--spring), box-shadow 0.22s;
 }
-.social svg { color: var(--brand, var(--accent)); transition: transform 0.3s var(--spring); }
+.social svg { color: var(--brand, var(--accent-text)); transition: transform 0.3s var(--spring); }
 .social:hover {
   color: var(--text);
   background: color-mix(in srgb, var(--brand, var(--accent)) 16%, transparent);
@@ -663,6 +1183,72 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   transform: translateY(-2px);
 }
 .social:hover svg { transform: scale(1.14); }
+
+/* --------------------------------------------------------------------------
+   Support. The one place on the page that asks for something rather than
+   offering something, so it says plainly what the money is for instead of
+   just showing a donate button.
+   -------------------------------------------------------------------------- */
+.support {
+  position: relative;
+  margin-top: 44px;
+  border-radius: var(--r-2xl);
+  padding: clamp(28px, 4vw, 48px);
+  overflow: hidden;
+  display: grid;
+  gap: clamp(28px, 4vw, 46px);
+}
+@media (min-width: 900px) { .support { grid-template-columns: 1.05fr 1fr; align-items: center; } }
+
+/* A warm bloom behind the card, so this section reads as the one warm spot
+   on an otherwise cool page. Centred rather than offset, because a gradient
+   position is physical and would end up on the wrong side under RTL. */
+.support::before {
+  content: "";
+  position: absolute;
+  inset: -60% -20% auto -20%;
+  height: 160%;
+  background: radial-gradient(52% 58% at 50% 2%, var(--bloom), transparent 74%);
+  pointer-events: none;
+}
+.support > * { position: relative; }
+
+.support-heart {
+  width: 56px; height: 56px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px var(--accent-line), 0 0 36px -8px var(--accent-glow);
+  color: var(--accent-text);
+}
+.support-heart svg { animation: beat 3.2s var(--e-out) infinite; }
+@keyframes beat {
+  0%, 62%, 100% { transform: scale(1); }
+  10% { transform: scale(1.16); }
+  20% { transform: scale(1); }
+  30% { transform: scale(1.1); }
+}
+
+.support p { margin-top: 20px; color: var(--text-2); font-size: 15.5px; max-width: 52ch; }
+.support .btn { margin-top: 26px; }
+
+/* Where the money goes, as a before/after rather than a sentence. */
+.path { display: grid; gap: 10px; }
+.path-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--r-lg);
+}
+.path-tile .pi { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: var(--r-md); }
+.path-tile .lb { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.path-tile .tx { font-size: 14.5px; margin-top: 2px; line-height: 1.6; }
+
+.path-tile.goal { background: var(--accent-wash); box-shadow: inset 0 0 0 1px var(--accent-line); }
+.path-tile.goal .pi { background: var(--accent-wash); color: var(--accent-text); }
+.path-tile.goal .lb { color: var(--accent-text); }
+.path-tile.goal .tx { color: var(--text); }
 
 /* --------------------------------------------------------------------------
    Footer
@@ -684,18 +1270,93 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   color: var(--text-3);
 }
 .foot a { color: var(--text-2); transition: color 0.2s; }
-.foot a:hover { color: var(--accent-2); }
+.foot a:hover { color: var(--accent-text); }
+
+/* --------------------------------------------------------------------------
+   Theme and language switches.
+
+   Where the View Transitions API exists the browser snapshots the page before
+   and after the swap and we animate between the two images — which is why a
+   whole-page change can cross-fade at all without every element animating
+   individually. Everything below is progressive: browsers without the API
+   fall back to the plain fades further down and still switch instantly.
+   -------------------------------------------------------------------------- */
+::view-transition-old(root), ::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+/* Theme: the freshly painted page is clipped open from the toggle button. */
+:root[data-vt="theme"]::view-transition-old(root) { z-index: 1; }
+:root[data-vt="theme"]::view-transition-new(root) { z-index: 2; }
+/* Language: the new page is uncovered from the edge its language starts
+   reading from — right for Persian, left for English — while the outgoing one
+   slides the other way underneath it. The motion states which way the page is
+   about to read, so the switch explains itself instead of just blinking. */
+:root[data-vt="lang"]::view-transition-old(root) {
+  z-index: 1;
+  animation: 0.62s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+:root[data-vt="lang"]::view-transition-new(root) {
+  z-index: 2;
+  animation: 0.62s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+:root[data-vt="lang"][data-vt-dir="rtl"]::view-transition-new(root) { animation-name: uncoverFromRight; }
+:root[data-vt="lang"][data-vt-dir="rtl"]::view-transition-old(root) { animation-name: slipLeft; }
+:root[data-vt="lang"][data-vt-dir="ltr"]::view-transition-new(root) { animation-name: uncoverFromLeft; }
+:root[data-vt="lang"][data-vt-dir="ltr"]::view-transition-old(root) { animation-name: slipRight; }
+
+@keyframes uncoverFromRight {
+  from { clip-path: inset(0 0 0 100%); transform: scale(1.02); }
+  to   { clip-path: inset(0 0 0 0);    transform: none; }
+}
+@keyframes uncoverFromLeft {
+  from { clip-path: inset(0 100% 0 0); transform: scale(1.02); }
+  to   { clip-path: inset(0 0 0 0);    transform: none; }
+}
+@keyframes slipLeft  { to { transform: translateX(-6%); opacity: 0.5; } }
+@keyframes slipRight { to { transform: translateX(6%);  opacity: 0.5; } }
+
+/* Fallback for browsers without the API: fade the page down, swap under the
+   cover of that, fade it back. */
+body { transition: opacity 0.17s linear; }
+body.swapping { opacity: 0.25; }
+
+/* Fallback for the theme swap in those same browsers. Scoped to a class the
+   script adds for half a second and then removes, so the blanket transition
+   never sits on the page during normal use. */
+:root.theming, :root.theming *, :root.theming *::before, :root.theming *::after {
+  transition: background-color 0.42s ease, background-image 0.42s ease,
+              color 0.42s ease, border-color 0.42s ease, box-shadow 0.42s ease !important;
+}
 
 /* --------------------------------------------------------------------------
    Reveal-on-scroll
    -------------------------------------------------------------------------- */
-[data-reveal] {
+/* Scoped to .js on purpose: the starting state of a reveal is invisible, so
+   without the guard a script that never runs leaves a blank page behind. The
+   class is set by the script itself, and the boot screen is still covering
+   everything when that happens, so the switch is never seen. */
+.js [data-reveal] {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.85s var(--e-out), transform 0.85s var(--e-out);
+  transition: opacity 0.75s var(--e-out), transform 0.75s var(--e-out);
   transition-delay: var(--d, 0ms);
 }
-[data-reveal].in { opacity: 1; transform: none; }
+.js [data-reveal].in { opacity: 1; transform: none; }
+
+/* Header items cascading in from the left once the boot screen lifts. Same
+   guard-and-.in pattern as [data-reveal] above, kept separate because these
+   fire once on load rather than on scroll, and slide in on the header's own
+   fixed left-to-right axis (.nav-in is always `direction: ltr`) instead of
+   drifting up from below. */
+.js [data-nav-reveal] {
+  opacity: 0;
+  transform: translateX(-16px);
+  transition: opacity 0.55s var(--e-out), transform 0.55s var(--e-out);
+  transition-delay: calc(var(--i, 0) * 45ms + 120ms);
+}
+.js [data-nav-reveal].in { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -704,18 +1365,59 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  [data-reveal] { opacity: 1; transform: none; }
+  .js [data-reveal] { opacity: 1; transform: none; }
+  .js [data-nav-reveal] { opacity: 1; transform: none; }
   .atmos-spot { display: none; }
+  /* The bail-out keyframe is the no-JS safety net, so it has to survive the
+     blanket animation reset above. */
+  #boot { animation-duration: 8s !important; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 860px) {
   .nav-links { display: none; }
-  .hero { min-height: auto; padding-top: 120px; }
+  .burger { display: grid; }
+  .hero { min-height: auto; padding-top: 96px; }
+  /* On a tall, narrow phone the height-driven size blows the artwork up to
+     several times the viewport width, so the crop swallows the side screens.
+     Below this breakpoint the width leads instead. */
+  .hero-visual {
+    height: auto;
+    width: min(148%, 600px);
+    top: clamp(84px, 13svh, 132px);
+  }
+  .hero-in { padding-top: min(18svh, 165px); }
+}
+@media (min-width: 861px) {
+  .sheet { display: none !important; }
+}
+
+/* On a short laptop screen the hero copy already reaches the floor, so the
+   pinned cue would land on top of the buttons. It is pure decoration, so it
+   gives way rather than pushing the composition around. */
+@media (max-height: 820px) and (min-width: 861px) {
+  .cue { display: none; }
 }
 </style>
 </head>
 
 <body>
+
+<!-- Boot screen ---------------------------------------------------------
+     Inlined ahead of everything else so the visitor sees the brand instead
+     of a flash of unstyled, half-loaded page while fonts and the release
+     manifest resolve. Removed from the DOM once it has faded out.
+     --------------------------------------------------------------------- -->
+<div id="boot" role="status" aria-live="polite" aria-label="Loading CNor">
+  <div class="boot-in">
+    <div class="boot-mark">
+      <img src="assets/icon-192.png" alt="" width="84" height="84" fetchpriority="high" />
+    </div>
+    <div class="boot-name">C<i>N</i>or</div>
+    <div class="boot-bar"><i id="bootBar"></i></div>
+  </div>
+</div>
+
+<a class="skip" href="#download" data-i18n="a11y.skip">پرش به دانلود</a>
 
 <!-- Atmosphere ---------------------------------------------------------- -->
 <div class="atmos" aria-hidden="true">
@@ -732,32 +1434,82 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
 <!-- Nav ----------------------------------------------------------------- -->
 <header class="nav" id="nav">
   <div class="wrap nav-in">
-    <a class="brand" href="#top">
-      <img src="assets/icon.png" alt="" width="34" height="34" />
+    <a class="brand" href="#top" aria-label="CNor" data-nav-reveal style="--i:0">
+      <img src="assets/icon-64.png" alt="" width="34" height="34" />
       <span class="brand-name">C<i>N</i>or</span>
     </a>
 
-    <nav class="nav-links">
-      <a href="#download" data-i18n="nav.download">دانلود</a>
-      <a href="#features" data-i18n="nav.features">ویژگی‌ها</a>
-      <a href="#how" data-i18n="nav.how">چطور کار می‌کنه</a>
-      <a href="#about" data-i18n="nav.about">درباره</a>
+    <!-- Order has to track the order of the sections in the document: the
+         scroll spy walks these links top to bottom and keeps the last one
+         whose section has already passed under the header. The --i values
+         below continue the brand's cascade left to right across the bar. -->
+    <nav class="nav-links" id="navLinks" aria-label="Main">
+      <a href="#features" data-i18n="nav.features" data-nav-reveal style="--i:1">ویژگی‌ها</a>
+      <a href="#download" data-i18n="nav.download" data-nav-reveal style="--i:2">دانلود</a>
+      <a href="#how" data-i18n="nav.how" data-nav-reveal style="--i:3">چطور کار می‌کنه</a>
+      <a href="#support" data-i18n="nav.support" data-nav-reveal style="--i:4">حمایت</a>
+      <a href="#faq" data-i18n="nav.faq" data-nav-reveal style="--i:5">سوال‌ها</a>
+      <a href="#about" data-i18n="nav.about" data-nav-reveal style="--i:6">درباره</a>
     </nav>
 
-    <div class="lang" role="group" aria-label="Language">
+    <div class="lang" role="group" aria-label="Language" data-nav-reveal style="--i:7">
       <button type="button" data-lang="en" aria-pressed="false">EN</button>
       <button type="button" data-lang="fa" aria-pressed="true">FA</button>
     </div>
+
+    <button type="button" class="theme" id="themeBtn" aria-pressed="false" aria-label="حالت روشن" data-i18n-label="a11y.theme" data-nav-reveal style="--i:8">
+      <svg class="sun" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.4 4.4l1.6 1.6M18 18l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.4 19.6 6 18M18 6l1.6-1.6"/></svg>
+      <svg class="moon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5a8.5 8.5 0 1 0 10.8 10.8Z"/></svg>
+    </button>
+
+    <button type="button" class="burger" id="burger" aria-expanded="false" aria-controls="sheet" aria-label="منو" data-i18n-label="a11y.menu" data-nav-reveal style="--i:9">
+      <i></i>
+    </button>
   </div>
 </header>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-card">
+    <a class="sheet-link" href="#features">
+      <span class="sheet-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 13.8 9l5.5 1.8-5.5 1.8L12 18l-1.8-5.4L4.7 10.8l5.5-1.8Z"/></svg></span>
+      <span class="sheet-tx" data-i18n="nav.features">ویژگی‌ها</span>
+      <svg class="sheet-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+    <a class="sheet-link" href="#download">
+      <span class="sheet-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 11 4.5 4.5 4.5-4.5"/><path d="M4 20h16"/></svg></span>
+      <span class="sheet-tx" data-i18n="nav.download">دانلود</span>
+      <svg class="sheet-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+    <a class="sheet-link" href="#how">
+      <span class="sheet-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none"/></svg></span>
+      <span class="sheet-tx" data-i18n="nav.how">چطور کار می‌کنه</span>
+      <svg class="sheet-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+    <a class="sheet-link" href="#support">
+      <span class="sheet-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.2 4.5 12.7a4.6 4.6 0 0 1 6.5-6.5l1 1 1-1a4.6 4.6 0 1 1 6.5 6.5Z"/></svg></span>
+      <span class="sheet-tx" data-i18n="nav.support">حمایت</span>
+      <svg class="sheet-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+    <a class="sheet-link" href="#faq">
+      <span class="sheet-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 0 1 5 1c0 1.7-2.3 1.7-2.5 3.4"/><path d="M12 17h.01"/></svg></span>
+      <span class="sheet-tx" data-i18n="nav.faq">سوال‌ها</span>
+      <svg class="sheet-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+    <a class="sheet-link" href="#about">
+      <span class="sheet-ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01"/><path d="M11 12h1v5"/><path d="M10 17h4"/></svg></span>
+      <span class="sheet-tx" data-i18n="nav.about">درباره</span>
+      <svg class="sheet-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+  </div>
+</div>
 
 <main id="top">
 
 <!-- Hero ---------------------------------------------------------------- -->
 <section class="hero">
-  <div class="wrap hero-in">
-    <img class="hero-icon" src="assets/icon.png" alt="CNor" width="148" height="148" data-reveal />
+  <div class="hero-visual" aria-hidden="true"></div>
 
+  <div class="wrap hero-in">
     <h1 class="wordmark" data-reveal style="--d:60ms">C<i>N</i>or</h1>
 
     <p class="hero-tag" data-reveal style="--d:140ms">
@@ -766,32 +1518,65 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
     </p>
 
     <div class="hero-cta" data-reveal style="--d:220ms">
-      <a class="btn primary lg" href="#download" id="heroDl">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
-        <span data-i18n="hero.cta">دانلود برای ویندوز</span>
+      <a class="btn primary lg" href="#download">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
+        <span data-i18n="hero.cta">دانلود برنامه</span>
       </a>
       <a class="btn ghost lg" href="#how">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none"/></svg>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none"/></svg>
         <span data-i18n="hero.cta2">چطور کار می‌کنه؟</span>
       </a>
     </div>
+  </div>
 
-    <div class="hero-meta" data-reveal style="--d:300ms">
-      <span>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
-        <span data-i18n="hero.m1">کاملاً رایگان</span>
-      </span>
-      <span>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
-        <span data-i18n="hero.m2">بدون سرور و اشتراک</span>
-      </span>
-      <span>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
-        <span data-i18n="hero.m3">فارسی و انگلیسی</span>
-      </span>
+  <div class="cue" aria-hidden="true"><i></i></div>
+</section>
+
+<!-- Features ------------------------------------------------------------ -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="kicker"><span class="dot"></span><span data-i18n="ft.kicker">ویژگی‌ها</span></span>
+      <h2 class="sec-title" data-i18n="ft.title">فقط ببین که چه قابلیت‌هایی توی دستته</h2>
     </div>
 
-    <div class="cue" aria-hidden="true"><i></i></div>
+    <div class="grid">
+      <article class="card glass" data-reveal>
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span>
+        <h3 data-i18n="ft.1t">همگام‌سازی لحظه‌به‌لحظه</h3>
+        <p data-i18n="ft.1b">پخش، مکث و پرش برای همه یکسانه. اگه کسی عقب بمونه، اپ آروم آروم میرسوندش.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:60ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="3.5"/><path d="M22 20v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.6a4 4 0 0 1 0 7"/></svg></span>
+        <h3 data-i18n="ft.2t">اتاق اختصاصی</h3>
+        <p data-i18n="ft.2b">میتونی اتاق اختصاصی و خصوصی خودت رو بسازی و به هرکسی که میخوای بگی بیاد.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:120ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v11H4z"/><path d="M2 20h20"/><path d="m10 9.5 4.5 2.5-4.5 2.5z" fill="currentColor" stroke="none"/></svg></span>
+        <h3 data-i18n="ft.3t">فایل خودت یا پخش مستقیم</h3>
+        <p data-i18n="ft.3b">هرکی فایل خودشو باز می‌کنه، یا میزبان مستقیم از سیستمش پخش می‌کنه، بدون نیاز به آپلود کردن داخل جایی.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:180ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+        <h3 data-i18n="ft.4t">کاملاً خصوصی</h3>
+        <p data-i18n="ft.4b">هیچ چیزی جایی ذخیره نمیشه. اتصال مستقیمه، فقط بین خودتون.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:240ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/><path d="M3.5 9h17M3.5 15h17"/><path d="M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3Z"/></svg></span>
+        <h3 data-i18n="ft.5t">زبان فارسی</h3>
+        <p data-i18n="ft.5b">برنامه از زبان فارسی هم پشتیبانی میکنه که راحت متوجه بشی که چیکار میخوای بکنی.</p>
+      </article>
+
+      <article class="card glass" data-reveal style="--d:300ms">
+        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 11 4.5 4.5 4.5-4.5"/><path d="M4 20h16"/></svg></span>
+        <h3 data-i18n="ft.6t">به‌روزرسانی خودکار</h3>
+        <p data-i18n="ft.6b">وقتی برای برنامه آپدیتی داده بشه، خودش به صورت اتوماتیک آپدیت میشه و نیاز نیست دوباره وارد سایت بشی و چیزی دانلود بکنی.</p>
+      </article>
+    </div>
   </div>
 </section>
 
@@ -801,14 +1586,14 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
     <div class="sec-head" data-reveal>
       <span class="kicker"><span class="dot"></span><span data-i18n="dl.kicker">دانلود</span></span>
       <h2 class="sec-title" data-i18n="dl.title">همین الان شروع کن</h2>
-      <p class="sec-sub" data-i18n="dl.sub">نصبش کمتر از یک دقیقه طول می‌کشه. بعدش فقط کافیه یه اتاق بسازی و لینکشو برای دوستات بفرستی.</p>
+      <p class="sec-sub" data-i18n="dl.sub">نصبش کمتر از یک دقیقه طول می‌کشه.</p>
     </div>
 
-    <div class="dl-card glass" data-reveal style="--d:80ms">
+    <div class="dl-card glass glass-live" data-reveal style="--d:80ms">
       <div class="dl-main">
         <div class="dl-os">
           <span class="os-ico">
-            <svg width="27" height="27" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.6 10.3 4.6v6.8H3V5.6Zm0 12.8 7.3 1V12.6H3v5.8Zm8.5 1.2L21 21V12.6h-9.5v7Zm0-15.2v7H21V3l-9.5 1.4Z"/></svg>
+            <svg width="27" height="27" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.6 10.3 4.6v6.8H3V5.6Zm0 12.8 7.3 1V12.6H3v5.8Zm8.5 1.2L21 21V12.6h-9.5v7Zm0-15.2v7H21V3l-9.5 1.4Z"/></svg>
           </span>
           <div>
             <h3 data-i18n="dl.win">ویندوز</h3>
@@ -816,83 +1601,35 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
           </div>
         </div>
 
-        <div class="dl-facts">
-          <span class="chip"><span data-i18n="dl.version">نسخه</span> <b id="verTxt">1.0.0</b></span>
-          <span class="chip"><span data-i18n="dl.size">حجم</span> <b id="sizeTxt">~90 MB</b></span>
+        <div class="dl-facts pending" id="dlFacts">
+          <span class="chip"><span data-i18n="dl.version">نسخه</span> <b id="verTxt">—</b></span>
+          <span class="chip"><span data-i18n="dl.size">حجم</span> <b id="sizeTxt">—</b></span>
           <span class="chip"><span data-i18n="dl.updated">آخرین بروزرسانی</span> <b id="dateTxt">—</b></span>
         </div>
 
-        <a class="btn primary lg" id="dlBtn" href="https://cnor-dl.cnor-dl-worker.workers.dev/dl/CNor-1.0.5-x64.exe" download>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
-          <span data-i18n="dl.btn">دانلود نصب‌کننده</span>
+        <a class="btn primary lg disabled" id="dlBtn" aria-disabled="true" role="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
+          <span data-i18n="dl.btn">دانلود</span>
         </a>
 
-        <p style="font-size:13px;color:var(--text-3)" data-i18n="dl.note">بعد از هر آپدیت، برنامه خودش بروز می‌شه — دیگه لازم نیست دوباره از اینجا دانلود کنی.</p>
+        <p class="dl-hint" data-i18n="dl.note">بعد از هر آپدیت، برنامه خودش بروز می‌شه؛ دیگه لازم نیست دوباره از اینجا دانلود کنی.</p>
       </div>
 
       <div class="steps">
         <div class="step">
           <span class="n">1</span>
-          <p data-i18n="dl.s1">فایل نصب رو دانلود و اجرا کن. برنامه توی <b>Program Files</b> نصب می‌شه.</p>
+          <p data-i18n="dl.s1">فایل نصب رو دانلود و اجرا کن.</p>
         </div>
         <div class="step">
           <span class="n">2</span>
           <p data-i18n="dl.s2">اولین بار ازت می‌پرسه <b>VLC</b> داری یا نه. اگه نداری، همونجا لینک دانلودش رو بهت می‌ده.</p>
         </div>
-        <div class="step">
-          <span class="n">3</span>
-          <p data-i18n="dl.s3">یه اتاق بساز، آدرسشو برای دوستات بفرست و <b>با هم ببینید</b>.</p>
+
+        <div class="note">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4.5"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.4 17.5A1.9 1.9 0 0 0 4 20.4h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0Z"/></svg>
+          <p data-i18n="dl.smartscreen">ویندوز موقع اجرا یه صفحه‌ی آبی <b>Windows protected your PC</b> نشون می‌ده. این به‌خاطر اینه که نصب‌کننده گواهی امضای دیجیتال نداره، نه اینکه مشکلی داشته باشه. روی <b>More info</b> و بعد <b>Run anyway</b> بزن.</p>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- Features ------------------------------------------------------------ -->
-<section id="features">
-  <div class="wrap">
-    <div class="sec-head" data-reveal>
-      <span class="kicker"><span class="dot"></span><span data-i18n="ft.kicker">ویژگی‌ها</span></span>
-      <h2 class="sec-title" data-i18n="ft.title">هرچی برای یه شب فیلم لازمه</h2>
-      <p class="sec-sub" data-i18n="ft.sub">سی‌نور سعی نمی‌کنه پخش‌کننده باشه — کاری که می‌کنه اینه که پخش‌کننده‌ی همه رو دقیقاً روی یه لحظه نگه داره.</p>
-    </div>
-
-    <div class="grid">
-      <article class="card glass" data-reveal>
-        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span>
-        <h3 data-i18n="ft.1t">هماهنگی دقیق</h3>
-        <p data-i18n="ft.1b">پخش، مکث و پرش برای همه همزمان اتفاق می‌افته. اگه یکی عقب بیفته، سی‌نور آروم برش می‌گردونه سر جاش.</p>
-      </article>
-
-      <article class="card glass" data-reveal style="--d:60ms">
-        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="3.5"/><path d="M22 20v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.6a4 4 0 0 1 0 7"/></svg></span>
-        <h3 data-i18n="ft.2t">اتاق با دوستات</h3>
-        <p data-i18n="ft.2b">یه اتاق بساز، رمز بذار یا نذار. هرکی وارد شد توی لیست می‌بینیش و می‌تونی باهاش چت کنی.</p>
-      </article>
-
-      <article class="card glass" data-reveal style="--d:120ms">
-        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v11H4z"/><path d="M2 20h20"/><path d="m10 9.5 4.5 2.5-4.5 2.5z" fill="currentColor" stroke="none"/></svg></span>
-        <h3 data-i18n="ft.3t">فایل خودت یا استریم</h3>
-        <p data-i18n="ft.3b">یا هرکی نسخه‌ی خودشو باز می‌کنه، یا فایل مستقیم از سیستم تو برای بقیه پخش می‌شه — بدون آپلود جایی.</p>
-      </article>
-
-      <article class="card glass" data-reveal style="--d:180ms">
-        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
-        <h3 data-i18n="ft.4t">خصوصی و بدون سرور</h3>
-        <p data-i18n="ft.4b">هیچ فایلی روی هیچ سروری نمی‌ره. اتصال مستقیم بین خودتونه و لینک فیلم فقط پیش میزبان می‌مونه.</p>
-      </article>
-
-      <article class="card glass" data-reveal style="--d:240ms">
-        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/><path d="M3.5 9h17M3.5 15h17"/><path d="M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3Z"/></svg></span>
-        <h3 data-i18n="ft.5t">فارسی، راست‌چین</h3>
-        <p data-i18n="ft.5b">کل برنامه فارسیه و کامل راست‌چین طراحی شده — نه ترجمه‌ی نصفه‌نیمه‌ی یه رابط انگلیسی.</p>
-      </article>
-
-      <article class="card glass" data-reveal style="--d:300ms">
-        <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7.5 11 4.5 4.5 4.5-4.5"/><path d="M4 20h16"/></svg></span>
-        <h3 data-i18n="ft.6t">آپدیت خودکار</h3>
-        <p data-i18n="ft.6b">نسخه‌ی جدید که بیاد، خودش می‌گیره و نصب می‌کنه. لازم نیست دوباره سراغ سایت بیای.</p>
-      </article>
     </div>
   </div>
 </section>
@@ -926,18 +1663,100 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
     <div class="vlc glass" data-reveal style="--d:120ms">
       <div>
         <h3 data-i18n="vlc.title">یه چیز کوچیک: به VLC نیاز داری</h3>
-        <p data-i18n="vlc.body">سی‌نور فیلم رو با VLC پخش می‌کنه. اگه نداشته باشی، برنامه خودش موقع اجرای اول بهت می‌گه و لینک دانلود رو نشونت می‌ده — ولی اگه دوست داری از قبل نصبش کنی:</p>
+        <p data-i18n="vlc.body">سی‌نور فیلم رو با VLC پخش می‌کنه. اگه نداشته باشی، برنامه خودش موقع اجرای اول بهت می‌گه و لینک دانلود رو نشونت می‌ده، ولی اگه دوست داری از قبل نصبش کنی:</p>
       </div>
       <div class="vlc-links">
         <a class="btn ghost" href="https://soft98.ir/multi-media/video-player/496-vlc-media-player.html" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
           <span data-i18n="vlc.local">سایت داخلی</span>
         </a>
         <a class="btn ghost" href="https://www.videolan.org/vlc/" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
           <span data-i18n="vlc.intl">سایت بین‌الملل</span>
         </a>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- Support ------------------------------------------------------------- -->
+<section id="support">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="kicker"><span class="dot"></span><span data-i18n="sp.kicker">حمایت مالی</span></span>
+      <h2 class="sec-title" data-i18n="sp.title">اگر برنامه رو دوست داشتی، ممنون می‌شم حمایت کنی</h2>
+    </div>
+
+    <div class="support glass" data-reveal style="--d:80ms">
+      <div>
+        <span class="support-heart">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.7 4.3 13a4.8 4.8 0 0 1 6.8-6.8l.9.9.9-.9a4.8 4.8 0 1 1 6.8 6.8Z"/></svg>
+        </span>
+        <p data-i18n="sp.body">سی‌نور رایگانه و همین‌طور هم می‌مونه. حمایت مالی‌تون مستقیم صرف کیفیت و کارایی می‌شه، نه چیز دیگه‌ای.</p>
+        <a class="btn primary lg" href="https://donito.me/sirahmadz" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.7 4.3 13a4.8 4.8 0 0 1 6.8-6.8l.9.9.9-.9a4.8 4.8 0 1 1 6.8 6.8Z"/></svg>
+          <span data-i18n="sp.btn">حمایت می‌کنم</span>
+        </a>
+      </div>
+
+      <div class="path">
+        <div class="path-tile goal">
+          <span class="pi">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01"/></svg>
+          </span>
+          <div>
+            <div class="lb" data-i18n="sp.goalLb">هدف</div>
+            <div class="tx" data-i18n="sp.goal">یه سرور اختصاصی برای سی‌نور، که وصل شدن بشه فقط یه کلیک.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ ----------------------------------------------------------------- -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <span class="kicker"><span class="dot"></span><span data-i18n="fq.kicker">سوال‌های پرتکرار</span></span>
+      <h2 class="sec-title" data-i18n="fq.title">چیزایی که معمولاً می‌پرسن</h2>
+    </div>
+
+    <div class="faq" data-reveal style="--d:60ms">
+      <details class="qa">
+        <summary data-i18n="fq.q1">واقعاً رایگانه؟</summary>
+        <div class="a" data-i18n="fq.a1">آره، واقعاً رایگانه. برای استفاده از برنامه هیچ نیازی به پرداخت نداری و می‌تونی کاملاً رایگان ازش لذت ببری. فقط اگه دوست داشتی، برای انرژی دادن به سازنده و ارتقای کیفیت و کارایی برنامه می‌تونی حمایت کنی.</div>
+      </details>
+
+      <details class="qa">
+        <summary data-i18n="fq.q2">حتماً باید VLC نصب باشه؟</summary>
+        <div class="a" data-i18n="fq.a2">بله. در حال حاضر سی‌نور پخش‌کننده‌ای نداره و فقط <b>VLC</b> رو کنترل می‌کنه. اگه نصب نباشه، برنامه موقع اجرای اول بهت می‌گه و لینک دانلودش رو نشونت می‌ده.</div>
+      </details>
+
+      <details class="qa">
+        <summary data-i18n="fq.q3">فیلم رو باید همه از قبل داشته باشن؟</summary>
+        <div class="a" data-i18n="fq.a3">نه. کسی که اتاق رو می‌سازه انتخاب می‌کنه که هرکی فایل خودشو پخش کنه، یا خودش از سیستمش استریم کنه (این حالت به اینترنت خوب نیاز داره). اگه حالت هرکی‌برای‌خودش رو انتخاب کنه، فقط کافیه لینک ویدیو رو به برنامه بده؛ فیلم خودش به‌صورت خودکار برای همه پخش می‌شه.</div>
+      </details>
+
+      <details class="qa">
+        <summary data-i18n="fq.q4">ویندوز می‌گه «Windows protected your PC». مشکلیه؟</summary>
+        <div class="a" data-i18n="fq.a4">نه. این پیام رو ویندوز برای هر نصب‌کننده‌ای که گواهی امضای دیجیتال نداشته باشه نشون می‌ده. گواهی‌اش هم سالانه کلی هزینه داره، منم پول نداشتم بگیرمش! روی <b>More info</b> بزن و بعد <b>Run anyway</b>.</div>
+      </details>
+
+      <details class="qa">
+        <summary data-i18n="fq.q5">نسخه‌ی مک یا لینوکس هست؟</summary>
+        <div class="a" data-i18n="fq.a5">فعلاً نه. الان فقط ویندوز ۱۰ و ۱۱ (۶۴ بیتی) پشتیبانی می‌شه. اما اگه از برنامه حمایت بشه، می‌تونیم برای همه‌ی دستگاه‌ها، حتی گوشی، نسخه‌ی مخصوص خودشو بدیم.</div>
+      </details>
+
+      <details class="qa">
+        <summary data-i18n="fq.q6">اطلاعاتم جایی ذخیره می‌شه؟</summary>
+        <div class="a" data-i18n="fq.a6">نه. حسابی برای ساختن وجود نداره و هیچ فایلی روی سرور نمی‌ره. ارتباط مستقیم بین خود شماست و حتی لینک فیلم هم فقط پیش میزبان می‌مونه.</div>
+      </details>
+
+      <details class="qa">
+        <summary data-i18n="fq.q7">چطور آپدیت می‌شه؟</summary>
+        <div class="a" data-i18n="fq.a7">خودکار. برنامه خودش رو آپدیت می‌کنه، پس فقط همین یه بار لازمه از این صفحه دانلود کنی.</div>
+      </details>
     </div>
   </div>
 </section>
@@ -947,29 +1766,28 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   <div class="wrap">
     <div class="sec-head" data-reveal>
       <span class="kicker"><span class="dot"></span><span data-i18n="ab.kicker">درباره</span></span>
-      <h2 class="sec-title" data-i18n="ab.title">ساخته‌ی کیه؟</h2>
+      <h2 class="sec-title" data-i18n="ab.title">کی این برنامه رو ساخته؟</h2>
     </div>
 
     <div class="people">
       <div class="person glass" data-reveal>
         <div class="person-head">
-          <img class="round" src="assets/sirahmadz.webp" alt="" width="52" height="52" />
+          <img class="round" src="assets/sirahmadz.webp" alt="" width="52" height="52" loading="lazy" />
           <div>
             <div class="nm">SirAhmadz</div>
-            <div class="rl" data-i18n="ab.creator">سی‌نور رو از صفر ساخت</div>
           </div>
         </div>
         <div class="socials">
           <a class="social" style="--brand:#2AABEE" href="https://t.me/thesirahmadz" target="_blank" rel="noopener">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 4.3 18.4 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.1 12.7 1.3 11.2c-1-.3-1-1 .2-1.5l18.7-7.2c.9-.3 1.6.2 1.4 1.8Z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 4.3 18.4 19c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.1 12.7 1.3 11.2c-1-.3-1-1 .2-1.5l18.7-7.2c.9-.3 1.6.2 1.4 1.8Z"/></svg>
             <span data-i18n="ab.telegram">تلگرام</span>
           </a>
           <a class="social" style="--brand:#E1306C" href="https://www.instagram.com/SirAhmadz" target="_blank" rel="noopener">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none"/></svg>
             <span data-i18n="ab.instagram">اینستاگرام</span>
           </a>
           <a class="social" style="--brand:#FF6B6B" href="https://donito.me/sirahmadz" target="_blank" rel="noopener">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.7 4.3 13a4.8 4.8 0 0 1 6.8-6.8l.9.9.9-.9a4.8 4.8 0 1 1 6.8 6.8Z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.7 4.3 13a4.8 4.8 0 0 1 6.8-6.8l.9.9.9-.9a4.8 4.8 0 1 1 6.8 6.8Z"/></svg>
             <span data-i18n="ab.donate">حمایت</span>
           </a>
         </div>
@@ -977,20 +1795,15 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
 
       <div class="person glass" data-reveal style="--d:80ms">
         <div class="person-head">
-          <img class="square" src="assets/noir-studios.webp" alt="" width="52" height="52" />
+          <img class="round" src="assets/noir-studios.webp" alt="" width="52" height="52" loading="lazy" />
           <div>
             <div class="nm">Noir Studios</div>
-            <div class="rl" data-i18n="ab.studio">انجمن و آپدیت‌ها</div>
           </div>
         </div>
         <div class="socials">
           <a class="social" style="--brand:#5865F2" href="https://discord.gg/QNBQcZzV9C" target="_blank" rel="noopener">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.3 5.4A16.5 16.5 0 0 0 15.2 4l-.3.5c1.4.4 2.4 1 3.4 1.7a12 12 0 0 0-9-.6c-.5.2-.9.4-1.3.6A12.4 12.4 0 0 1 9 4.5L8.8 4C7.4 4.2 6 4.7 4.7 5.4 2.2 9.1 1.5 12.8 1.9 16.4a16.6 16.6 0 0 0 5 2.5l1-1.6c-.6-.2-1.1-.5-1.6-.8l.4-.3a11.9 11.9 0 0 0 10.6 0l.4.3c-.5.3-1 .6-1.7.8l1 1.6a16.5 16.5 0 0 0 5-2.5c.5-4.2-.6-7.9-2.7-11ZM8.4 14.2c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm7.2 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.3 5.4A16.5 16.5 0 0 0 15.2 4l-.3.5c1.4.4 2.4 1 3.4 1.7a12 12 0 0 0-9-.6c-.5.2-.9.4-1.3.6A12.4 12.4 0 0 1 9 4.5L8.8 4C7.4 4.2 6 4.7 4.7 5.4 2.2 9.1 1.5 12.8 1.9 16.4a16.6 16.6 0 0 0 5 2.5l1-1.6c-.6-.2-1.1-.5-1.6-.8l.4-.3a11.9 11.9 0 0 0 10.6 0l.4.3c-.5.3-1 .6-1.7.8l1 1.6a16.5 16.5 0 0 0 5-2.5c.5-4.2-.6-7.9-2.7-11ZM8.4 14.2c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm7.2 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z"/></svg>
             <span data-i18n="ab.discord">دیسکورد</span>
-          </a>
-          <a class="social" style="--brand:#5fe0a8" href="#download">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>
-            <span data-i18n="ab.releases">دانلود CNor</span>
           </a>
         </div>
       </div>
@@ -1012,111 +1825,202 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
   'use strict';
 
   /* ---------------------------------------------------------------------
+     Boot screen. Held until the page has actually finished loading and the
+     fonts have resolved, with a hard cap so a stalled request can never
+     strand the visitor behind the splash.
+     --------------------------------------------------------------------- */
+  document.documentElement.classList.add('js');
+
+  var boot = document.getElementById('boot');
+  var bootBar = document.getElementById('bootBar');
+  var bootAt = Date.now();
+  var booted = false;
+
+  document.documentElement.classList.add('locked');
+  if (bootBar) requestAnimationFrame(function () { bootBar.style.setProperty('--p', '72%'); });
+
+  function unboot() {
+    if (booted) return;
+    booted = true;
+    if (bootBar) bootBar.style.setProperty('--p', '100%');
+    /* A splash that flashes for 80ms reads as a glitch, so give it a floor. */
+    setTimeout(function () {
+      boot.classList.add('gone');
+      document.documentElement.classList.remove('locked');
+      setTimeout(function () { if (boot.parentNode) boot.parentNode.removeChild(boot); }, 700);
+      /* The header cascades in right as the splash lifts, not before — doing
+         it earlier would have it finish while still hidden behind #boot. */
+      document.querySelectorAll('[data-nav-reveal]').forEach(function (el) {
+        el.classList.add('in');
+      });
+    }, Math.max(0, 480 - (Date.now() - bootAt)));
+  }
+
+  function whenLoaded() {
+    /* `load` does not wait on webfonts, and swapping a font under the
+       visitor right after the splash lifts is exactly the flash the splash
+       exists to hide. */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(unboot, unboot);
+    } else {
+      unboot();
+    }
+  }
+
+  if (document.readyState === 'complete') whenLoaded();
+  else window.addEventListener('load', whenLoaded);
+  setTimeout(unboot, 4500);
+
+  /* ---------------------------------------------------------------------
      Copy. Both languages live here so the toggle can rewrite the page
      without a reload, the same way the desktop app does it.
      --------------------------------------------------------------------- */
   var COPY = {
     fa: {
-      'nav.download': 'دانلود', 'nav.features': 'ویژگی‌ها', 'nav.how': 'چطور کار می‌کنه', 'nav.about': 'درباره',
+      'nav.download': 'دانلود', 'nav.features': 'ویژگی‌ها', 'nav.how': 'چطور کار می‌کنه',
+      'nav.support': 'حمایت', 'nav.about': 'درباره', 'nav.faq': 'سوال‌ها',
+      'a11y.skip': 'پرش به دانلود', 'a11y.menu': 'منو', 'a11y.theme': 'تغییر حالت روشن و تاریک',
       'hero.line1': 'فاصله دیگه معنی نداره.',
       'hero.line2': 'فیلم و سریال‌های موردعلاقت رو همزمان با آدمایی که دوستشون داری ببین.',
-      'hero.cta': 'دانلود برای ویندوز', 'hero.cta2': 'چطور کار می‌کنه؟',
-      'hero.m1': 'کاملاً رایگان', 'hero.m2': 'بدون سرور و اشتراک', 'hero.m3': 'فارسی و انگلیسی',
+      'hero.cta': 'دانلود برنامه', 'hero.cta2': 'چطور کار می‌کنه؟',
       'dl.kicker': 'دانلود', 'dl.title': 'همین الان شروع کن',
-      'dl.sub': 'نصبش کمتر از یک دقیقه طول می‌کشه. بعدش فقط کافیه یه اتاق بسازی و لینکشو برای دوستات بفرستی.',
+      'dl.sub': 'نصبش کمتر از یک دقیقه طول می‌کشه.',
       'dl.win': 'ویندوز', 'dl.winSub': 'ویندوز ۱۰ و ۱۱ · ۶۴ بیتی',
       'dl.version': 'نسخه', 'dl.size': 'حجم', 'dl.updated': 'آخرین بروزرسانی',
-      'dl.btn': 'دانلود نصب‌کننده',
-      'dl.note': 'بعد از هر آپدیت، برنامه خودش بروز می‌شه — دیگه لازم نیست دوباره از اینجا دانلود کنی.',
-      'dl.s1': 'فایل نصب رو دانلود و اجرا کن. برنامه توی <b>Program Files</b> نصب می‌شه.',
+      'dl.btn': 'دانلود',
+      'dl.note': 'بعد از هر آپدیت، برنامه خودش بروز می‌شه؛ دیگه لازم نیست دوباره از اینجا دانلود کنی.',
+      'dl.s1': 'فایل نصب رو دانلود و اجرا کن.',
       'dl.s2': 'اولین بار ازت می‌پرسه <b>VLC</b> داری یا نه. اگه نداری، همونجا لینک دانلودش رو بهت می‌ده.',
-      'dl.s3': 'یه اتاق بساز، آدرسشو برای دوستات بفرست و <b>با هم ببینید</b>.',
-      'ft.kicker': 'ویژگی‌ها', 'ft.title': 'هرچی برای یه شب فیلم لازمه',
-      'ft.sub': 'سی‌نور سعی نمی‌کنه پخش‌کننده باشه — کاری که می‌کنه اینه که پخش‌کننده‌ی همه رو دقیقاً روی یه لحظه نگه داره.',
-      'ft.1t': 'هماهنگی دقیق', 'ft.1b': 'پخش، مکث و پرش برای همه همزمان اتفاق می‌افته. اگه یکی عقب بیفته، سی‌نور آروم برش می‌گردونه سر جاش.',
-      'ft.2t': 'اتاق با دوستات', 'ft.2b': 'یه اتاق بساز، رمز بذار یا نذار. هرکی وارد شد توی لیست می‌بینیش و می‌تونی باهاش چت کنی.',
-      'ft.3t': 'فایل خودت یا استریم', 'ft.3b': 'یا هرکی نسخه‌ی خودشو باز می‌کنه، یا فایل مستقیم از سیستم تو برای بقیه پخش می‌شه — بدون آپلود جایی.',
-      'ft.4t': 'خصوصی و بدون سرور', 'ft.4b': 'هیچ فایلی روی هیچ سروری نمی‌ره. اتصال مستقیم بین خودتونه و لینک فیلم فقط پیش میزبان می‌مونه.',
-      'ft.5t': 'فارسی، راست‌چین', 'ft.5b': 'کل برنامه فارسیه و کامل راست‌چین طراحی شده — نه ترجمه‌ی نصفه‌نیمه‌ی یه رابط انگلیسی.',
-      'ft.6t': 'آپدیت خودکار', 'ft.6b': 'نسخه‌ی جدید که بیاد، خودش می‌گیره و نصب می‌کنه. لازم نیست دوباره سراغ سایت بیای.',
+      'dl.smartscreen': 'ویندوز موقع اجرا یه صفحه‌ی آبی <b>Windows protected your PC</b> نشون می‌ده. این به‌خاطر اینه که نصب‌کننده گواهی امضای دیجیتال نداره، نه اینکه مشکلی داشته باشه. روی <b>More info</b> و بعد <b>Run anyway</b> بزن.',
+      'ft.kicker': 'ویژگی‌ها', 'ft.title': 'فقط ببین که چه قابلیت‌هایی توی دستته',
+      'ft.1t': 'همگام‌سازی لحظه‌به‌لحظه', 'ft.1b': 'پخش، مکث و پرش برای همه یکسانه. اگه کسی عقب بمونه، اپ آروم آروم میرسوندش.',
+      'ft.2t': 'اتاق اختصاصی', 'ft.2b': 'میتونی اتاق اختصاصی و خصوصی خودت رو بسازی و به هرکسی که میخوای بگی بیاد.',
+      'ft.3t': 'فایل خودت یا پخش مستقیم', 'ft.3b': 'هرکی فایل خودشو باز می‌کنه، یا میزبان مستقیم از سیستمش پخش می‌کنه، بدون نیاز به آپلود کردن داخل جایی.',
+      'ft.4t': 'کاملاً خصوصی', 'ft.4b': 'هیچ چیزی جایی ذخیره نمیشه. اتصال مستقیمه، فقط بین خودتون.',
+      'ft.5t': 'زبان فارسی', 'ft.5b': 'برنامه از زبان فارسی هم پشتیبانی میکنه که راحت متوجه بشی که چیکار میخوای بکنی.',
+      'ft.6t': 'به‌روزرسانی خودکار', 'ft.6b': 'وقتی برای برنامه آپدیتی داده بشه، خودش به صورت اتوماتیک آپدیت میشه و نیاز نیست دوباره وارد سایت بشی و چیزی دانلود بکنی.',
       'how.kicker': 'چطور کار می‌کنه', 'how.title': 'سه قدم تا شروع فیلم',
       'how.n1': '۱', 'how.n2': '۲', 'how.n3': '۳',
       'how.1t': 'اتاق بساز', 'how.1b': 'اسم و رمز دلخواهت رو بذار و اتاق رو باز کن. سی‌نور آدرس اتاق رو بهت می‌ده.',
       'how.2t': 'دوستاتو دعوت کن', 'how.2b': 'آدرس رو براشون بفرست. اونا توی برنامه‌ی خودشون واردش می‌کنن و میان تو اتاق.',
       'how.3t': 'پخش کن', 'how.3b': 'فیلم رو انتخاب کن و بزن پلی. از اینجا به بعد همه چیز خودکار هماهنگ می‌مونه.',
       'vlc.title': 'یه چیز کوچیک: به VLC نیاز داری',
-      'vlc.body': 'سی‌نور فیلم رو با VLC پخش می‌کنه. اگه نداشته باشی، برنامه خودش موقع اجرای اول بهت می‌گه و لینک دانلود رو نشونت می‌ده — ولی اگه دوست داری از قبل نصبش کنی:',
+      'vlc.body': 'سی‌نور فیلم رو با VLC پخش می‌کنه. اگه نداشته باشی، برنامه خودش موقع اجرای اول بهت می‌گه و لینک دانلود رو نشونت می‌ده، ولی اگه دوست داری از قبل نصبش کنی:',
       'vlc.local': 'سایت داخلی', 'vlc.intl': 'سایت بین‌الملل',
-      'ab.kicker': 'درباره', 'ab.title': 'ساخته‌ی کیه؟',
-      'ab.creator': 'سی‌نور رو از صفر ساخت', 'ab.studio': 'انجمن و آپدیت‌ها',
+      'fq.kicker': 'سوال‌های پرتکرار', 'fq.title': 'چیزایی که معمولاً می‌پرسن',
+      'fq.q1': 'واقعاً رایگانه؟',
+      'fq.a1': 'آره، واقعاً رایگانه. برای استفاده از برنامه هیچ نیازی به پرداخت نداری و می‌تونی کاملاً رایگان ازش لذت ببری. فقط اگه دوست داشتی، برای انرژی دادن به سازنده و ارتقای کیفیت و کارایی برنامه می‌تونی حمایت کنی.',
+      'fq.q2': 'حتماً باید VLC نصب باشه؟',
+      'fq.a2': 'بله. در حال حاضر سی‌نور پخش‌کننده‌ای نداره و فقط <b>VLC</b> رو کنترل می‌کنه. اگه نصب نباشه، برنامه موقع اجرای اول بهت می‌گه و لینک دانلودش رو نشونت می‌ده.',
+      'fq.q3': 'فیلم رو باید همه از قبل داشته باشن؟',
+      'fq.a3': 'نه. کسی که اتاق رو می‌سازه انتخاب می‌کنه که هرکی فایل خودشو پخش کنه، یا خودش از سیستمش استریم کنه (این حالت به اینترنت خوب نیاز داره). اگه حالت هرکی‌برای‌خودش رو انتخاب کنه، فقط کافیه لینک ویدیو رو به برنامه بده؛ فیلم خودش به‌صورت خودکار برای همه پخش می‌شه.',
+      'fq.q4': 'ویندوز می‌گه «Windows protected your PC». مشکلیه؟',
+      'fq.a4': 'نه. این پیام رو ویندوز برای هر نصب‌کننده‌ای که گواهی امضای دیجیتال نداشته باشه نشون می‌ده. گواهی‌اش هم سالانه کلی هزینه داره، منم پول نداشتم بگیرمش! روی <b>More info</b> بزن و بعد <b>Run anyway</b>.',
+      'fq.q5': 'نسخه‌ی مک یا لینوکس هست؟',
+      'fq.a5': 'فعلاً نه. الان فقط ویندوز ۱۰ و ۱۱ (۶۴ بیتی) پشتیبانی می‌شه. اما اگه از برنامه حمایت بشه، می‌تونیم برای همه‌ی دستگاه‌ها، حتی گوشی، نسخه‌ی مخصوص خودشو بدیم.',
+      'fq.q6': 'اطلاعاتم جایی ذخیره می‌شه؟',
+      'fq.a6': 'نه. حسابی برای ساختن وجود نداره و هیچ فایلی روی سرور نمی‌ره. ارتباط مستقیم بین خود شماست و حتی لینک فیلم هم فقط پیش میزبان می‌مونه.',
+      'fq.q7': 'چطور آپدیت می‌شه؟',
+      'fq.a7': 'خودکار. برنامه خودش رو آپدیت می‌کنه، پس فقط همین یه بار لازمه از این صفحه دانلود کنی.',
+      'ab.kicker': 'درباره', 'ab.title': 'کی این برنامه رو ساخته؟',
       'ab.telegram': 'تلگرام', 'ab.instagram': 'اینستاگرام', 'ab.donate': 'حمایت',
-      'ab.discord': 'دیسکورد', 'ab.releases': 'دانلود CNor',
+      'ab.discord': 'دیسکورد',
+      'sp.kicker': 'حمایت مالی',
+      'sp.title': 'اگر برنامه رو دوست داشتی، ممنون می‌شم حمایت کنی',
+      'sp.body': 'سی‌نور رایگانه و همین‌طور هم می‌مونه. حمایت مالی‌تون مستقیم صرف کیفیت و کارایی می‌شه، نه چیز دیگه‌ای.',
+      'sp.btn': 'حمایت می‌کنم',
+      'sp.goalLb': 'هدف', 'sp.goal': 'یه سرور اختصاصی برای سی‌نور، که وصل شدن بشه فقط یه کلیک.',
       'foot.rights': '© <span id="yr"></span> Noir Studios · همه حقوق محفوظه',
-      'foot.top': 'برگرد بالا ↑',
-      'dl.loading': 'در حال بررسی…'
+      'foot.top': 'برگرد بالا ↑'
     },
     en: {
-      'nav.download': 'Download', 'nav.features': 'Features', 'nav.how': 'How it works', 'nav.about': 'About',
+      'nav.download': 'Download', 'nav.features': 'Features', 'nav.how': 'How it works',
+      'nav.support': 'Donate', 'nav.about': 'About', 'nav.faq': 'FAQ',
+      'a11y.skip': 'Skip to download', 'a11y.menu': 'Menu', 'a11y.theme': 'Toggle light and dark mode',
       'hero.line1': "Distance doesn't matter anymore.",
       'hero.line2': 'Watch your favourite films and shows at the same time as the people you love.',
-      'hero.cta': 'Download for Windows', 'hero.cta2': 'How does it work?',
-      'hero.m1': 'Completely free', 'hero.m2': 'No servers, no subscription', 'hero.m3': 'Persian & English',
+      'hero.cta': 'Download app', 'hero.cta2': 'How does it work?',
       'dl.kicker': 'Download', 'dl.title': 'Start right now',
-      'dl.sub': 'Installing takes under a minute. After that, just open a room and send the address to your friends.',
+      'dl.sub': 'Installing takes under a minute.',
       'dl.win': 'Windows', 'dl.winSub': 'Windows 10 & 11 · 64-bit',
       'dl.version': 'Version', 'dl.size': 'Size', 'dl.updated': 'Updated',
-      'dl.btn': 'Download installer',
-      'dl.note': 'CNor updates itself from here on — you never have to come back to this page for a new version.',
-      'dl.s1': 'Download and run the installer. CNor installs into <b>Program Files</b>.',
-      'dl.s2': 'On first launch it asks whether you have <b>VLC</b>. If you don’t, it hands you the download links.',
-      'dl.s3': 'Open a room, send the address to your friends, and <b>watch together</b>.',
-      'ft.kicker': 'Features', 'ft.title': 'Everything a film night needs',
-      'ft.sub': "CNor doesn't try to be a video player — it keeps everyone else's player on exactly the same frame as yours.",
-      'ft.1t': 'Frame-tight sync', 'ft.1b': 'Play, pause and seek happen for everyone at once. If someone falls behind, CNor eases them back into place.',
-      'ft.2t': 'Rooms with friends', 'ft.2b': 'Open a room, with a password or without. Everyone who joins shows up in the list, and you can chat as you watch.',
-      'ft.3t': 'Own copy or stream', 'ft.3b': 'Either everyone opens their own file, or it streams straight from your machine — nothing gets uploaded anywhere.',
-      'ft.4t': 'Private, serverless', 'ft.4b': 'No file ever touches a server. The connection is directly between you, and a video link stays with the host alone.',
-      'ft.5t': 'Persian, properly RTL', 'ft.5b': 'The whole app is built right-to-left in Persian — not a half-finished translation of an English interface.',
-      'ft.6t': 'Automatic updates', 'ft.6b': 'When a new version lands, CNor fetches and installs it on its own. No need to come back here.',
+      'dl.btn': 'Download',
+      'dl.note': 'CNor updates itself from here on; you never have to come back to this page for a new version.',
+      'dl.s1': 'Download and run the installer.',
+      'dl.s2': "On first launch it asks whether you have <b>VLC</b>. If you don't, it hands you the download links.",
+      'dl.smartscreen': 'Windows will show a blue <b>Windows protected your PC</b> screen. That is because the installer carries no paid code-signing certificate, not because anything is wrong with it. Click <b>More info</b>, then <b>Run anyway</b>.',
+      'ft.kicker': 'Features', 'ft.title': 'See what you\'ve got in your hands',
+      'ft.1t': 'Frame-tight sync', 'ft.1b': 'Play, pause and seek land for everyone at once. If someone drifts, the app quietly catches them up.',
+      'ft.2t': 'Your own room', 'ft.2b': 'Create a private room and invite whoever you want.',
+      'ft.3t': 'Your file or a direct stream', 'ft.3b': "Everyone opens their own copy, or the host streams straight from their machine, no uploading anywhere.",
+      'ft.4t': 'Completely private', 'ft.4b': 'Nothing gets stored anywhere. Direct connection, just between you.',
+      'ft.5t': 'Persian language', 'ft.5b': "Everything is in Persian: buttons, menus, messages. You'll know exactly what to do.",
+      'ft.6t': 'Updates itself', 'ft.6b': "When an update drops, the app installs it itself. No need to come back here.",
       'how.kicker': 'How it works', 'how.title': 'Three steps to press play',
       'how.n1': '1', 'how.n2': '2', 'how.n3': '3',
       'how.1t': 'Open a room', 'how.1b': 'Pick a name and a password if you want one. CNor hands you the room address.',
       'how.2t': 'Invite your friends', 'how.2b': 'Send them the address. They paste it into their own copy of CNor and walk in.',
       'how.3t': 'Press play', 'how.3b': 'Choose the film and hit play. From there on everything stays in sync by itself.',
       'vlc.title': 'One small thing: you need VLC',
-      'vlc.body': 'CNor plays video through VLC. If you don’t have it, the app tells you on first launch and shows you the download links — but if you’d rather get it in advance:',
+      'vlc.body': "CNor plays video through VLC. If you don't have it, the app tells you on first launch and shows you the download links, but if you'd rather get it in advance:",
       'vlc.local': 'Iran mirror', 'vlc.intl': 'Official site',
+      'fq.kicker': 'FAQ', 'fq.title': 'The things people usually ask',
+      'fq.q1': 'Is it really free?',
+      'fq.a1': "Yes, genuinely free. You don't need to pay for anything to use the app, and you can enjoy it fully for free. If you'd like to, you can support the developer to help fund quality and performance improvements.",
+      'fq.q2': 'Do I have to install VLC?',
+      'fq.a2': "Yes. Right now CNor has no player of its own; it just drives <b>VLC</b>. If you don't have it, the app tells you on first launch and gives you the download link.",
+      'fq.q3': 'Does everyone need the file in advance?',
+      'fq.a3': "No. Whoever creates the room chooses whether everyone plays their own copy, or the host streams straight from their own machine (which needs a decent connection). In the stream mode, all it takes is pasting the video link into the app; it plays for everyone automatically.",
+      'fq.q4': 'Windows says “Windows protected your PC”. Is that a problem?',
+      'fq.a4': "No. Windows shows that for any installer without a code-signing certificate, and those cost a few hundred dollars a year, money I didn't have! Click <b>More info</b>, then <b>Run anyway</b>.",
+      'fq.q5': 'Is there a Mac or Linux build?',
+      'fq.a5': 'Not yet. Right now only Windows 10 and 11 (64-bit) are supported. But with enough support, we could ship dedicated versions for every device, phones included.',
+      'fq.q6': 'Is any of my data stored?',
+      'fq.a6': 'No. There is no account to create and no file ever reaches a server. The connection is directly between you, and even the video link stays with the host alone.',
+      'fq.q7': 'How do updates work?',
+      'fq.a7': 'Automatically. The app fetches and installs new versions itself, so this page is a one-time visit.',
       'ab.kicker': 'About', 'ab.title': 'Who made this?',
-      'ab.creator': 'Built CNor from the ground up', 'ab.studio': 'Community & updates',
       'ab.telegram': 'Telegram', 'ab.instagram': 'Instagram', 'ab.donate': 'Donate',
-      'ab.discord': 'Discord', 'ab.releases': 'Download CNor',
+      'ab.discord': 'Discord',
+      'sp.kicker': 'Donate',
+      'sp.title': "If you like the app, I'd appreciate the support",
+      'sp.body': 'CNor is free and it stays that way. What you give goes straight into quality and performance, nothing else.',
+      'sp.btn': 'Support the project',
+      'sp.goalLb': 'The goal', 'sp.goal': 'A dedicated server for CNor, so joining is nothing more than one click.',
       'foot.rights': '© <span id="yr"></span> Noir Studios · All rights reserved',
-      'foot.top': 'Back to top ↑',
-      'dl.loading': 'Checking…'
+      'foot.top': 'Back to top ↑'
     }
   };
 
   var html = document.documentElement;
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lang = 'fa';
 
   /* ---- language ------------------------------------------------------- */
-  function applyLang(lang) {
-    html.lang = lang;
-    html.dir = lang === 'fa' ? 'rtl' : 'ltr';
-    document.body.style.setProperty('--dirmul', lang === 'fa' ? '-1' : '1');
+  function applyLang(next) {
+    lang = next;
+    html.lang = next;
+    html.dir = next === 'fa' ? 'rtl' : 'ltr';
 
-    var dict = COPY[lang];
+    var dict = COPY[next];
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       var v = dict[el.getAttribute('data-i18n')];
       if (v != null) el.innerHTML = v;
     });
+    /* A few controls are icon-only, so their label lives in the attribute
+       rather than in the text node. */
+    document.querySelectorAll('[data-i18n-label]').forEach(function (el) {
+      var v = dict[el.getAttribute('data-i18n-label')];
+      if (v != null) el.setAttribute('aria-label', v);
+    });
 
     document.querySelectorAll('.lang button').forEach(function (b) {
-      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+      b.setAttribute('aria-pressed', String(b.dataset.lang === next));
     });
 
     stampYear();
-    try { localStorage.setItem('cnor.lang', lang); } catch (e) {}
+    stampDate();
+    try { localStorage.setItem('cnor.lang', next); } catch (e) {}
   }
 
   function stampYear() {
@@ -1124,18 +2028,156 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
     if (y) y.textContent = new Date().getFullYear();
   }
 
+  /* ---------------------------------------------------------------------
+     Swap choreography, shared by the language and theme toggles.
+
+     `document.startViewTransition` hands us a before/after snapshot pair and
+     holds the paint until we say go, which is the only way to cross-fade a
+     change this broad without animating every element by hand. Browsers
+     without it (and anyone who asked for reduced motion) get the plain fade
+     defined in the stylesheet, or no animation at all.
+     --------------------------------------------------------------------- */
+  var vtSupported = typeof document.startViewTransition === 'function';
+
+  function swap(kind, mutate, decorate) {
+    if (reduced) { mutate(); delete html.dataset.vtDir; return; }
+
+    if (!vtSupported) {
+      document.body.classList.add('swapping');
+      setTimeout(function () {
+        mutate();
+        delete html.dataset.vtDir;
+        requestAnimationFrame(function () { document.body.classList.remove('swapping'); });
+      }, 170);
+      return;
+    }
+
+    html.dataset.vt = kind;
+    var t = document.startViewTransition(mutate);
+    var clear = function () { delete html.dataset.vt; delete html.dataset.vtDir; };
+    var hush = function () {};
+
+    /* Every one of these promises rejects if the browser abandons the
+       transition — which it does whenever the tab isn't being rendered — so
+       all three need a handler or the rejection surfaces as an uncaught
+       error in the console. The swap itself has already happened by then.
+       The trailing catch matters too: an abandoned transition has no
+       ::view-transition pseudo-element left, so `decorate` throws when it
+       tries to animate one. */
+    t.ready.then(decorate || hush, hush).catch(hush);
+    t.updateCallbackDone.then(hush, hush);
+    t.finished.then(clear, clear);
+  }
+
   document.querySelectorAll('.lang button').forEach(function (b) {
-    b.addEventListener('click', function () { applyLang(b.dataset.lang); });
+    b.addEventListener('click', function () {
+      var next = b.dataset.lang;
+      if (next === lang) return;
+      /* Read by the keyframes: the uncover runs from whichever edge the
+         incoming language starts reading from. */
+      html.dataset.vtDir = next === 'fa' ? 'rtl' : 'ltr';
+      swap('lang', function () { applyLang(next); });
+    });
+  });
+
+  /* ---- theme ----------------------------------------------------------- */
+  var themeBtn = document.getElementById('themeBtn');
+  var themeMeta = document.getElementById('themeColor');
+
+  function paintTheme(next) {
+    html.dataset.theme = next;
+    themeBtn.setAttribute('aria-pressed', String(next === 'light'));
+    if (themeMeta) themeMeta.content = next === 'light' ? '#f2f3f6' : '#07070a';
+    try { localStorage.setItem('cnor.theme', next); } catch (e) {}
+  }
+
+  paintTheme(html.dataset.theme === 'light' ? 'light' : 'dark');
+
+  themeBtn.addEventListener('click', function () {
+    var next = html.dataset.theme === 'light' ? 'dark' : 'light';
+
+    if (!vtSupported && !reduced) {
+      /* No snapshot to cross-fade, so ease the colours themselves instead.
+         The class comes straight back off — a permanent transition on every
+         element would drag on every hover for the rest of the session. */
+      html.classList.add('theming');
+      setTimeout(function () { html.classList.remove('theming'); }, 520);
+      paintTheme(next);
+      return;
+    }
+
+    swap('theme', function () { paintTheme(next); }, function () {
+      /* Open the new paint as a circle growing out of the button itself, so
+         the change reads as coming from the thing that was pressed. */
+      var r = themeBtn.getBoundingClientRect();
+      var x = r.left + r.width / 2;
+      var y = r.top + r.height / 2;
+      var far = Math.max(
+        Math.hypot(x, y),
+        Math.hypot(window.innerWidth - x, y),
+        Math.hypot(x, window.innerHeight - y),
+        Math.hypot(window.innerWidth - x, window.innerHeight - y)
+      );
+      html.animate(
+        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + far + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 620, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' }
+      );
+    });
   });
 
   var saved = null;
   try { saved = localStorage.getItem('cnor.lang'); } catch (e) {}
-  applyLang(saved === 'en' || saved === 'fa' ? saved : 'fa');
+  /* Persian is the default rather than a guess from navigator.language:
+     plenty of the audience runs an English-locale Windows and would be handed
+     the wrong language by the sniff. */
+  applyLang(saved === 'en' ? 'en' : 'fa');
+
+  /* ---- mobile menu ----------------------------------------------------- */
+  var burger = document.getElementById('burger');
+  var sheet = document.getElementById('sheet');
+
+  function setMenu(open) {
+    burger.setAttribute('aria-expanded', String(open));
+    sheet.hidden = !open;
+  }
+  burger.addEventListener('click', function () {
+    setMenu(burger.getAttribute('aria-expanded') !== 'true');
+  });
+  sheet.addEventListener('click', function (e) {
+    /* The link now wraps an icon and a chevron, so a tap can land on either
+       child rather than the <a> itself — closest() catches all three. */
+    if (e.target.closest('a')) setMenu(false);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      burger.focus();
+    }
+  });
+  document.addEventListener('click', function (e) {
+    if (burger.getAttribute('aria-expanded') !== 'true') return;
+    if (burger.contains(e.target)) return;
+    /* The sheet is now a full-height scrim behind a smaller card, so a tap
+       on the dimmed area outside the card has to close it too — not just a
+       tap fully outside the sheet element. */
+    if (sheet.contains(e.target) && e.target.closest('.sheet-card')) return;
+    setMenu(false);
+  });
+  /* Rotating the phone out of the mobile breakpoint would otherwise leave the
+     sheet stuck open behind the desktop nav. Safari only grew addEventListener
+     on MediaQueryList in 14, and a throw here would take the rest of the
+     script down with it. */
+  var wide = window.matchMedia('(min-width: 861px)');
+  var onWide = function (e) { if (e.matches) setMenu(false); };
+  if (wide.addEventListener) wide.addEventListener('change', onWide);
+  else if (wide.addListener) wide.addListener(onWide);
 
   /* ---- reveal on scroll ------------------------------------------------ */
   var targets = document.querySelectorAll('[data-reveal]');
+  function revealAll() { targets.forEach(function (el) { el.classList.add('in'); }); }
+
   if (reduced || !('IntersectionObserver' in window)) {
-    targets.forEach(function (el) { el.classList.add('in'); });
+    revealAll();
   } else {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
@@ -1143,12 +2185,65 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     targets.forEach(function (el) { io.observe(el); });
+
+    /* An observer only computes intersections while the tab is actually being
+       rendered. If the page was opened in a background tab it can sit at
+       opacity 0 indefinitely, so anything still hidden once the splash lifts
+       gets shown outright rather than risking a blank page. */
+    setTimeout(function () {
+      if (!document.querySelector('[data-reveal].in')) revealAll();
+    }, 2500);
   }
 
-  /* ---- sticky nav ------------------------------------------------------ */
+  /* Belt-and-suspenders for the header cascade: it normally fires from
+     unboot() the moment the splash lifts, but if fonts.ready never settles
+     (a stalled font request) the boot screen's own CSS bailout still removes
+     #boot at 8s while this JS-driven reveal would otherwise never run,
+     leaving the header stuck invisible. */
+  setTimeout(function () {
+    document.querySelectorAll('[data-nav-reveal]:not(.in)').forEach(function (el) {
+      el.classList.add('in');
+    });
+  }, 2500);
+
+  /* ---- sticky nav, scroll spy ------------------------------------------
+     One scroll listener, and everything it touches is batched into a single
+     rAF so a fast wheel can't queue up dozens of style reads.
+     --------------------------------------------------------------------- */
   var nav = document.getElementById('nav');
-  var onScroll = function () { nav.classList.toggle('stuck', window.scrollY > 12); };
-  onScroll();
+  var spyLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var ticking = false;
+
+  function onFrame() {
+    ticking = false;
+    var y = window.scrollY;
+
+    nav.classList.toggle('stuck', y > 12);
+
+    /* Whichever section owns the band just under the sticky header wins. */
+    var mark = y + 140;
+    var current = null;
+    for (var i = 0; i < spyLinks.length; i++) {
+      var sec = document.querySelector(spyLinks[i].getAttribute('href'));
+      if (sec && sec.offsetTop <= mark) current = spyLinks[i];
+    }
+    /* When the last section is short, the page can run out of room to
+       scroll before `mark` ever reaches its offsetTop, so the spy would
+       stay stuck on the section before it forever. Pin it to the last link
+       once the page has hit bottom. */
+    if (spyLinks.length && y + window.innerHeight >= document.documentElement.scrollHeight - 2) {
+      current = spyLinks[spyLinks.length - 1];
+    }
+    spyLinks.forEach(function (a) {
+      if (a === current) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+  }
+
+  function onScroll() {
+    if (!ticking) { ticking = true; requestAnimationFrame(onFrame); }
+  }
+  onFrame();
   window.addEventListener('scroll', onScroll, { passive: true });
 
   /* ---- cursor spotlight + card sheen ----------------------------------- */
@@ -1177,6 +2272,15 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
     });
   }
 
+  /* ---- FAQ: one panel open at a time ----------------------------------- */
+  var qas = Array.prototype.slice.call(document.querySelectorAll('.qa'));
+  qas.forEach(function (d) {
+    d.addEventListener('toggle', function () {
+      if (!d.open) return;
+      qas.forEach(function (o) { if (o !== d) o.open = false; });
+    });
+  });
+
   /* ---- live release info ------------------------------------------------
      Reads dl/release.json, which `npm run release` regenerates every time a
      build is staged, so the version, size, date and download link all follow
@@ -1186,8 +2290,53 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
      ISPs (domain-based throttling, not a CDN issue), while the proxy measured
      20+ MB/s serving the exact same bytes.
      --------------------------------------------------------------------- */
+  var published = null;
+
   function fmtSize(bytes) {
     return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  /* Converted by hand rather than left to Intl's fa-IR calendar: that
+     depends on the engine shipping full Persian-calendar data, and engines
+     that don't (older Safari, some WebViews) silently fall back to the
+     Gregorian date while still using Persian digits — a date that's simply
+     wrong, not just unfamiliar. This algorithm needs nothing from the
+     platform, so the result is identical everywhere. */
+  var jalaliMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+  var faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+  function toFaDigits(n) {
+    return String(n).replace(/[0-9]/g, function (d) { return faDigits[d]; });
+  }
+
+  function gregorianToJalali(gy, gm, gd) {
+    var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    var jy = gy <= 1600 ? 0 : 979;
+    gy -= gy <= 1600 ? 621 : 1600;
+    var gy2 = gm > 2 ? gy + 1 : gy;
+    var days = 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+    jy += 33 * Math.floor(days / 12053);
+    days %= 12053;
+    jy += 4 * Math.floor(days / 1461);
+    days %= 1461;
+    if (days > 365) {
+      jy += Math.floor((days - 1) / 365);
+      days = (days - 1) % 365;
+    }
+    var jm = days < 186 ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+    var jd = days < 186 ? 1 + (days % 31) : 1 + ((days - 186) % 30);
+    return [jy, jm, jd];
+  }
+
+  function stampDate() {
+    var el = document.getElementById('dateTxt');
+    if (!el || !published) return;
+    if (lang === 'fa') {
+      var j = gregorianToJalali(published.getFullYear(), published.getMonth() + 1, published.getDate());
+      el.textContent = toFaDigits(j[2]) + ' ' + jalaliMonths[j[1] - 1] + ' ' + toFaDigits(j[0]);
+    } else {
+      el.textContent = published.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
   }
 
   fetch('dl/release.json', { cache: 'no-cache' })
@@ -1195,21 +2344,18 @@ section { position: relative; z-index: 1; padding-block: clamp(64px, 9vw, 120px)
     .then(function (rel) {
       if (rel.version) document.getElementById('verTxt').textContent = rel.version;
       if (rel.size) document.getElementById('sizeTxt').textContent = fmtSize(rel.size);
-      if (rel.url) document.getElementById('dlBtn').href = rel.url;
-      else if (rel.file) document.getElementById('dlBtn').href = 'dl/' + rel.file;
 
-      var when = rel.published ? new Date(rel.published) : null;
-      if (when) {
-        document.getElementById('dateTxt').textContent = when.toLocaleDateString(
-          html.lang === 'fa' ? 'fa-IR' : 'en-GB',
-          { year: 'numeric', month: 'short', day: 'numeric' }
-        );
-      }
+      /* The download buttons stay disabled until the app itself is ready —
+         wiring up the link here would let people grab a build that isn't
+         meant to ship yet. Re-enable this once that's no longer true. */
+
+      if (rel.published) { published = new Date(rel.published); stampDate(); }
+      document.getElementById('dlFacts').classList.remove('pending');
     })
     .catch(function () {
       /* Offline or the manifest hasn't been staged yet: the button keeps the
-         hardcoded href baked in at the last release, which still works. */
-      document.getElementById('dateTxt').textContent = '—';
+         hardcoded href baked in at the last release, which still works. The
+         chips stay dashed rather than showing a number we can't stand behind. */
     });
 })();
 </script>
