@@ -1145,13 +1145,29 @@ html[lang="fa"] .chip b#dateTxt { direction: rtl; font-family: var(--font-fa); }
 /* --------------------------------------------------------------------------
    Credits
    -------------------------------------------------------------------------- */
-.people { display: grid; gap: 16px; margin-top: 44px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+/* There are only ever two cards here, but a 300px minimum let auto-fit find
+   room for a *third* track on any wide desktop window — the container caps
+   out at ~1068px, and 300×3 fits inside that easily. The two real cards then
+   landed lopsided against that phantom empty column instead of splitting the
+   row evenly. 380px keeps the fit to two tracks at every width this ever
+   renders at. */
+/* justify-items: center matters because .person caps itself at 80% width
+   below — without it, a grid item that can't stretch to fill its cell just
+   sits at the cell's start edge, so all the leftover space piled up on one
+   side of each card instead of framing it evenly. */
+.people { display: grid; gap: 16px; margin-top: 44px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); justify-items: center; }
 .person {
   border-radius: var(--r-xl);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  /* justify-items: center on the parent stops stretching by default, so
+     without an explicit width each card would shrink to fit its own content
+     instead — and the two cards don't have the same amount of content
+     (different social-link counts), so they'd render at two different
+     widths side by side. */
+  width: 100%;
   max-width: 80%;
 }
 .person-head { display: flex; align-items: center; gap: 14px; }
@@ -1397,6 +1413,9 @@ body.swapping { opacity: 0.25; }
      layout it just left a bare gap on one side, since RTL/LTR both align
      these cards to the same edge instead of centring them. */
   .person { max-width: 100%; }
+  /* Made explicit rather than left to auto-fit's arithmetic: guarantees one
+     column here regardless of what minimum the desktop rule above uses. */
+  .people { grid-template-columns: 1fr; }
 }
 @media (min-width: 861px) {
   .sheet { display: none !important; }
