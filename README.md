@@ -12,7 +12,7 @@
 
 [![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fcnorapp.github.io%2Fdl%2Frelease.json&query=%24.version&label=version&color=5fe0a8&style=for-the-badge)](https://cnorapp.github.io)
 [![Platform](https://img.shields.io/badge/Windows-10%20%C2%B7%2011-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://cnorapp.github.io)
-[![License](https://img.shields.io/badge/License-MIT-8b8b8b?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-8b8b8b?style=for-the-badge)](LICENSE)
 
 <br />
 
@@ -69,7 +69,7 @@ Things like a dedicated server for the project, so no one has to fuss with virtu
 
 <br />
 
-<sub>© 2026 Noir Studios · MIT License</sub>
+<sub>© 2026 Noir Studios · All Rights Reserved</sub>
 
 </div>
 
