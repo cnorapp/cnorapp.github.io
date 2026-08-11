@@ -2,5 +2,18 @@
   "enabled": true,
   "minVersion": "1.1.14",
   "message": "",
-  "announcements": []
+  "announcements": [
+    {
+      "id": "1-1-14-subtitles-room-settings",
+      "date": "1405/05/20",
+      "title": {
+        "fa": "زیرنویس هوشمندتر و تنظیمات جدید اتاق",
+        "en": "Smarter subtitles and new room settings"
+      },
+      "body": {
+        "fa": "حالا میشه بین زیرنویس‌هایی که اضافه می‌کنی و زیرنویس‌های از قبل روی خود ویدیو هم سوئیچ کرد. یه دکمه تنظیمات جدید هم به اتاق اضافه شد که فقط هاست می‌بینه: قوانین اتاق زنده قابل تغییرن، و یه دقت هماهنگی هم می‌تونی تنظیم کنی. سیستم سینک هم کلی دقیق‌تر شده، خصوصاً پلی/پاز و جلو-عقب کردن از داخل خود VLC.",
+        "en": "You can now switch between subtitles you add and ones already embedded in the video. A new host-only settings button was added to the room: room rules can be changed live, plus a sync accuracy dial. The sync system is also a lot more accurate now, especially native VLC play/pause and seeking."
+      }
+    }
+  ]
 }
