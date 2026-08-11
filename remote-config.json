@@ -4,6 +4,51 @@
   "message": "",
   "announcements": [
     {
+      "id": "preview-7",
+      "date": "1405/05/26",
+      "title": { "fa": "دکمه آن‌بن کردن اضافه شد", "en": "Unban button added" },
+      "body": {
+        "fa": "هاست الان می‌تونه از داخل لیست کاربرا، کسایی که بن کرده رو ببینه و آن‌بنشون کنه.",
+        "en": "Hosts can now see and unban previously banned users right from the member list."
+      }
+    },
+    {
+      "id": "preview-6",
+      "date": "1405/05/25",
+      "title": { "fa": "پنجره برنامه کوچیک‌تر شد", "en": "Smaller app window" },
+      "body": {
+        "fa": "طبق پیشنهاد چند نفر از شما، ابعاد کلی پنجره برنامه رو یه‌کم کاهش دادیم.",
+        "en": "Based on feedback, the overall app window size was reduced a bit."
+      }
+    },
+    {
+      "id": "preview-5",
+      "date": "1405/05/24",
+      "title": { "fa": "دقت هماهنگی قابل تنظیم شد", "en": "Sync accuracy is now adjustable" },
+      "body": {
+        "fa": "هاست از تنظیمات اتاق می‌تونه دقت هماهنگی رو بالا یا پایین ببره، مخصوصاً برای کسایی که اینترنت ضعیف‌تری دارن مفیده.",
+        "en": "Hosts can raise or lower sync accuracy from room settings — especially useful for viewers with a weaker connection."
+      }
+    },
+    {
+      "id": "preview-4",
+      "date": "1405/05/23",
+      "title": { "fa": "سرعت دانلود آپدیت بهتر شد", "en": "Faster, more reliable update downloads" },
+      "body": {
+        "fa": "مشکل گیر کردن نوار پیشرفت دانلود آپدیت به‌طور کامل رفع شد.",
+        "en": "The update download progress bar getting stuck is now fully fixed."
+      }
+    },
+    {
+      "id": "preview-3",
+      "date": "1405/05/22",
+      "title": { "fa": "پلی و پاز از داخل خود VLC هم کار می‌کنه", "en": "Native VLC play/pause now works" },
+      "body": {
+        "fa": "دیگه لازم نیست فقط از داخل خود برنامه پلی و پاز کنی؛ از داخل VLC هم درست هماهنگ میشه.",
+        "en": "You no longer have to use CNor's own buttons — pausing and playing directly in VLC now syncs correctly too."
+      }
+    },
+    {
       "id": "preview-2",
       "date": "1405/05/21",
       "title": { "fa": "رفع باگ ورود به اتاق", "en": "Join crash fixed" },
