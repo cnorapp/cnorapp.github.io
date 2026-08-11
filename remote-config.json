@@ -2,5 +2,24 @@
   "enabled": true,
   "minVersion": "1.1.15",
   "message": "",
-  "announcements": []
+  "announcements": [
+    {
+      "id": "preview-2",
+      "date": "1405/05/21",
+      "title": { "fa": "رفع باگ ورود به اتاق", "en": "Join crash fixed" },
+      "body": {
+        "fa": "یه باگ که باعث میشد بعضی کاربرا اصلاً نتونن وارد اتاق بشن رفع شد.",
+        "en": "Fixed a bug that stopped some guests from being able to join a room at all."
+      }
+    },
+    {
+      "id": "preview-1",
+      "date": "1405/05/20",
+      "title": { "fa": "زیرنویس هوشمندتر و تنظیمات جدید اتاق", "en": "Smarter subtitles and new room settings" },
+      "body": {
+        "fa": "حالا میشه بین زیرنویس‌هایی که اضافه می‌کنی و زیرنویس‌های از قبل روی خود ویدیو هم سوئیچ کرد. یه دکمه تنظیمات جدید هم به اتاق اضافه شد که فقط هاست می‌بینه.",
+        "en": "You can now switch between subtitles you add and ones already embedded in the video. A new host-only settings button was added to the room."
+      }
+    }
+  ]
 }
