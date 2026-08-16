@@ -1,8 +1,8 @@
-version: 1.4.16
+version: 1.4.17
 files:
-  - url: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.16/CNor-1.4.16-x64.exe
-    sha512: /rvlYhnjy2wYFfHag4qAt1CP5edKKImO85VUykRa/X1NPLMVy9bAjvgpJXRt0AsrP6OHLvnVlALX7GJYCAHN2w==
-    size: 77511328
-path: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.16/CNor-1.4.16-x64.exe
-sha512: /rvlYhnjy2wYFfHag4qAt1CP5edKKImO85VUykRa/X1NPLMVy9bAjvgpJXRt0AsrP6OHLvnVlALX7GJYCAHN2w==
-releaseDate: '2026-08-16T05:11:08.855Z'
+  - url: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.17/CNor-1.4.17-x64.exe
+    sha512: YO7Zq6IG6U0iPTTqQRbtOj8a4jn72ygAE3V2qF9ohGgvcmLnWzkHD0zgiu6jvyiUL0Hhje70XXApCfmTrMvlCw==
+    size: 77510854
+path: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.17/CNor-1.4.17-x64.exe
+sha512: YO7Zq6IG6U0iPTTqQRbtOj8a4jn72ygAE3V2qF9ohGgvcmLnWzkHD0zgiu6jvyiUL0Hhje70XXApCfmTrMvlCw==
+releaseDate: '2026-08-16T05:21:23.728Z'
