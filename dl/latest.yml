@@ -1,8 +1,8 @@
-version: 1.4.2
+version: 1.4.3
 files:
-  - url: https://cnor-dl-vercel.vercel.app/CNor-1.4.2-x64.exe
-    sha512: LtkcmyMfM4UUzgz1OUIZETyclJ74QMBPd2PCnz9j8+S5yW4uQ2l0n23ZKZkibzUany4QNdsqbee88OJR52QbVA==
-    size: 77511564
-path: https://cnor-dl-vercel.vercel.app/CNor-1.4.2-x64.exe
-sha512: LtkcmyMfM4UUzgz1OUIZETyclJ74QMBPd2PCnz9j8+S5yW4uQ2l0n23ZKZkibzUany4QNdsqbee88OJR52QbVA==
-releaseDate: '2026-08-15T22:45:41.655Z'
+  - url: https://cnor-dl-vercel.vercel.app/CNor-1.4.3-x64.exe
+    sha512: OP7AqckrnYc2y+hAUap+AvxBHFunaXVawpBsknC8qCGtpc7rd7heKdkpYxK1LdzwFqwpaQ84hCgMhvlX2XQlOQ==
+    size: 77511306
+path: https://cnor-dl-vercel.vercel.app/CNor-1.4.3-x64.exe
+sha512: OP7AqckrnYc2y+hAUap+AvxBHFunaXVawpBsknC8qCGtpc7rd7heKdkpYxK1LdzwFqwpaQ84hCgMhvlX2XQlOQ==
+releaseDate: '2026-08-16T01:28:57.355Z'
