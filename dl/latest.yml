@@ -1,8 +1,8 @@
-version: 1.4.28
+version: 1.4.29
 files:
-  - url: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.28/NoirStudios-Setup-1.4.28-x64.exe
-    sha512: j/hkgb7MnUvSsaIZB1CwkYsGCdhjbU1yGjdoEHHTgZi7/SkAVju1BWc4LPf8iNtlAmYZxlywyK+XDv7RjHOxvQ==
-    size: 77506213
-path: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.28/NoirStudios-Setup-1.4.28-x64.exe
-sha512: j/hkgb7MnUvSsaIZB1CwkYsGCdhjbU1yGjdoEHHTgZi7/SkAVju1BWc4LPf8iNtlAmYZxlywyK+XDv7RjHOxvQ==
-releaseDate: '2026-08-16T13:12:14.277Z'
+  - url: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.29/NoirStudios-Setup-1.4.29-x64.exe
+    sha512: V2LjVWEeY+LF2cMHQWAchQBjqiCQiOssUxrg1pGzJIThTRCb7+RGqNZJRdo7wEHKa61l5BN6Ni1IrBKn4+F9dQ==
+    size: 77508315
+path: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.29/NoirStudios-Setup-1.4.29-x64.exe
+sha512: V2LjVWEeY+LF2cMHQWAchQBjqiCQiOssUxrg1pGzJIThTRCb7+RGqNZJRdo7wEHKa61l5BN6Ni1IrBKn4+F9dQ==
+releaseDate: '2026-08-16T13:23:04.331Z'
