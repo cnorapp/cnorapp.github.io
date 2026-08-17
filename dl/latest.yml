@@ -1,8 +1,8 @@
-version: 1.4.31
+version: 1.4.32
 files:
-  - url: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.31/Setup-1.4.31-x64.exe
-    sha512: QsoNYuUy6kTZO9+hq80712qtNvBf6O0DJevCOyg9BEypKqjtAVScv0CXYSlZMC4+R3XmFxza8yrrQU0lvXKVLg==
-    size: 77509444
-path: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.31/Setup-1.4.31-x64.exe
-sha512: QsoNYuUy6kTZO9+hq80712qtNvBf6O0DJevCOyg9BEypKqjtAVScv0CXYSlZMC4+R3XmFxza8yrrQU0lvXKVLg==
-releaseDate: '2026-08-16T14:27:03.146Z'
+  - url: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.32/Setup-1.4.32-x64.exe
+    sha512: e86qGB4/eTYQ/Tek6juky97f/A0DadFSRdEIQN8Vvs/81SoF2vteqkmTjOHXl8mKipxydVv3asiHTU2omH2yHw==
+    size: 77509551
+path: https://github.com/TheSirAhmadz/cnor-releases/releases/download/v1.4.32/Setup-1.4.32-x64.exe
+sha512: e86qGB4/eTYQ/Tek6juky97f/A0DadFSRdEIQN8Vvs/81SoF2vteqkmTjOHXl8mKipxydVv3asiHTU2omH2yHw==
+releaseDate: '2026-08-17T15:18:50.574Z'
