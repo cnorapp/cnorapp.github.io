@@ -1,7 +1,13 @@
 {
   "enabled": true,
-  "minVersion": "1.5.23",
+  "minVersion": "1.5.24",
   "message": "",
+  "android": {
+    "enabled": true,
+    "minVersion": "0.1.0",
+    "message": "",
+    "downloadUrl": ""
+  },
   "announcements": [
     {
       "id": "updates-1",
