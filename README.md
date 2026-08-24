@@ -6,12 +6,14 @@
 
 <br />
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=19&duration=2500&pause=900&color=5FE0A8&center=true&vCenter=true&width=560&lines=Watch+movies+with+your+friends;Sync+VLC+playback+automatically;Works+on+any+shared+network)](https://cnorapp.github.io)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=19&duration=2500&pause=900&color=5FE0A8&center=true&vCenter=true&width=560&lines=Watch+movies+with+your+friends;Playback+syncs+automatically;Works+on+any+shared+network)](https://cnorapp.github.io)
 
 <br />
 
-[![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fcnorapp.github.io%2Fdl%2Frelease.json&query=%24.version&label=version&color=5fe0a8&style=for-the-badge)](https://cnorapp.github.io)
+[![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fcnorapp.github.io%2Fdl%2Frelease.json&query=%24.version&label=windows&color=5fe0a8&style=for-the-badge)](https://cnorapp.github.io)
+[![Android version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fcnorapp.github.io%2Fdl%2Frelease-android.json&query=%24.version&label=android&color=5fe0a8&style=for-the-badge)](https://cnorapp.github.io)
 [![Platform](https://img.shields.io/badge/Windows-10%20%C2%B7%2011-0078d4?style=for-the-badge&logo=windows&logoColor=white)](https://cnorapp.github.io)
+[![Platform](https://img.shields.io/badge/Android-7%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)](https://cnorapp.github.io)
 [![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-8b8b8b?style=for-the-badge)](LICENSE)
 
 <br />
@@ -24,9 +26,9 @@
 
 ## درباره · About
 
-هدف از ساخت سی‌نور این بود که بشه به سادگی، همراه با کسایی که دوستشون داری، فیلم و سریال‌های مورد علاقه‌تون رو همزمان تماشا کنید. سی‌نور این امکان رو با کمک **VLC Media Player** فراهم می‌کنه.
+هدف از ساخت سی‌نور این بود که بشه به سادگی، همراه با کسایی که دوستشون داری، فیلم و سریال‌های مورد علاقه‌تون رو همزمان تماشا کنید — روی **ویندوز** و **اندروید**، هر دو.
 
-The whole point of building CNor was simple: make it effortless to watch your favorite movies and shows in perfect sync with the people you care about. CNor makes this possible through **VLC Media Player**.
+The whole point of building CNor was simple: make it effortless to watch your favorite movies and shows in perfect sync with the people you care about — on **Windows** and **Android**, both.
 
 ---
 
