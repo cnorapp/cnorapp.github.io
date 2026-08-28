@@ -4,9 +4,9 @@
   "message": "",
   "android": {
     "enabled": true,
-    "minVersion": "0.3.18",
+    "minVersion": "0.3.20",
     "message": "",
-    "downloadUrl": "https://cnor-dl.cnor-dl-worker.workers.dev/v0.3.18/CNor-0.3.18.apk"
+    "downloadUrl": "https://cnor-dl.cnor-dl-worker.workers.dev/v0.3.20/CNor-0.3.20.apk"
   },
   "announcements": [
     {
