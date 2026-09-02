@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "minVersion": "1.5.51",
+  "minVersion": "1.5.53",
   "message": "",
   "android": {
     "enabled": true,
