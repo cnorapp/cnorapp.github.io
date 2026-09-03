@@ -1,12 +1,12 @@
 {
   "enabled": true,
-  "minVersion": "1.5.54",
+  "minVersion": "1.5.55",
   "message": "",
   "android": {
     "enabled": true,
-    "minVersion": "0.3.25",
+    "minVersion": "0.3.26",
     "message": "",
-    "downloadUrl": "https://cnor-dl.cnor-dl-worker.workers.dev/v0.3.25/CNor-0.3.25.apk"
+    "downloadUrl": "https://cnor-dl.cnor-dl-worker.workers.dev/v0.3.26/CNor-0.3.26.apk"
   },
   "announcements": [
     {
