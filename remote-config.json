@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "minVersion": "1.5.90",
+  "minVersion": "1.5.91",
   "message": "",
   "vpsSignaling": {
     "enabled": true,
