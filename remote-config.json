@@ -1,10 +1,10 @@
 {
   "enabled": true,
-  "minVersion": "1.5.87",
+  "minVersion": "1.5.88",
   "message": "",
   "vpsSignaling": {
     "enabled": true,
-    "url": "ws://152.228.145.5:8787/connect"
+    "url": "wss://152-228-145-5.sslip.io/connect"
   },
   "android": {
     "enabled": true,
