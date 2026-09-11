@@ -1,7 +1,11 @@
 {
   "enabled": true,
-  "minVersion": "1.5.83",
+  "minVersion": "1.5.84",
   "message": "",
+  "vpsSignaling": {
+    "enabled": false,
+    "url": ""
+  },
   "android": {
     "enabled": true,
     "minVersion": "0.3.29",
