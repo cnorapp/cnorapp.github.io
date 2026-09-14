@@ -1,8 +1,8 @@
-version: 1.5.92
+version: 1.5.93
 files:
-  - url: https://cnor-dl.cnor-dl-worker.workers.dev/v1.5.92/Setup-1.5.92-x64.exe
-    sha512: br5OWWbkaIyRSdu83jbGgwKkwrQbdhp9mO1aXcaIROm9GYbXGpaHln6eOuUXfW61zC12w8qt6/zm/I53DIT5HQ==
-    size: 83648694
-path: https://cnor-dl.cnor-dl-worker.workers.dev/v1.5.92/Setup-1.5.92-x64.exe
-sha512: br5OWWbkaIyRSdu83jbGgwKkwrQbdhp9mO1aXcaIROm9GYbXGpaHln6eOuUXfW61zC12w8qt6/zm/I53DIT5HQ==
-releaseDate: '2026-09-14T14:10:10.714Z'
+  - url: https://cnor-dl.cnor-dl-worker.workers.dev/v1.5.93/Setup-1.5.93-x64.exe
+    sha512: zMPZqYBj0RUpnmsJvSDLg8EfSZwXqX1DBUsXIW+hPSnn0ENjIhy6hXDwQSL8NTeCdYsGIV7em0gz8mORQg3Cng==
+    size: 83652750
+path: https://cnor-dl.cnor-dl-worker.workers.dev/v1.5.93/Setup-1.5.93-x64.exe
+sha512: zMPZqYBj0RUpnmsJvSDLg8EfSZwXqX1DBUsXIW+hPSnn0ENjIhy6hXDwQSL8NTeCdYsGIV7em0gz8mORQg3Cng==
+releaseDate: '2026-09-14T17:44:37.244Z'
