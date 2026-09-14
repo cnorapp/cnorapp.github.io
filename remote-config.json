@@ -4,8 +4,8 @@
   "message": "",
   "vpsSignaling": {
     "enabled": true,
-    "url": "wss://152-228-145-5.sslip.io/connect",
-    "fallbackUrl": "ws://152.228.145.5:8787/connect"
+    "url": "wss://136-243-216-67.sslip.io/connect",
+    "fallbackUrl": "ws://136.243.216.67:8787/connect"
   },
   "android": {
     "enabled": true,
