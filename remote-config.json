@@ -4,16 +4,46 @@
   "message": "",
   "vpsSignaling": {
     "enabled": true,
-    "url": "wss://136-243-216-67.sslip.io/connect",
-    "fallbackUrl": "ws://136.243.216.67:8787/connect"
+    "url": "wss://cnor.5-57-35-249.sslip.io/connect",
+    "fallbackUrl": "ws://5.57.35.249:8787/connect"
   },
   "android": {
     "enabled": true,
-    "minVersion": "0.3.29",
+    "minVersion": "0.4.0",
     "message": "",
-    "downloadUrl": "https://cnor-dl.cnor-dl-worker.workers.dev/v0.3.29/CNor-0.3.29.apk"
+    "downloadUrl": "https://github.com/cnorapp/cnorapp.github.io/releases/download/v0.4.0/CNor-0.4.0.apk"
   },
   "announcements": [
+    {
+      "id": "update-1405-08",
+      "date": {
+        "fa": "1405/08/21",
+        "en": "2026/11/12"
+      },
+      "title": {
+        "fa": "آپدیت جدید: پخش روان‌تر و هماهنگی دقیق‌تر 🎬",
+        "en": "New update: smoother playback, tighter sync 🎬"
+      },
+      "body": {
+        "fa": "توی این آپدیت پخش فیلم از لینک خیلی کمتر قطع میشه، لینک خراب همون لحظه تشخیص داده میشه و فاصله‌ی بین بیننده‌ها خیلی کمتر شده، پس اگه با هم توی دیسکورد باشید دیگه صدا اکو نمیشه. کنترل صدا بیرون از تمام‌صفحه و میانبرهای کیبورد (Space، M، F و فلش‌ها) هم اضافه شدن. نسخه‌ی اندروید هم کامل با ویندوز هماهنگ شد و قطعی‌های کوتاه اینترنت دیگه از اتاق بیرونت نمی‌کنه.",
+        "en": "In this update, playback from links stutters far less, broken links are caught right away, and viewers stay much closer together, so no more echo if you're also in a voice call. A volume control outside full screen and keyboard shortcuts (Space, M, F and the arrows) were added too. The Android app is now fully in step with Windows, and a short internet drop no longer throws you out of the room."
+      }
+    },
+    {
+      "id": "dedicated-server-1",
+      "date": {
+        "fa": "1405/08/21",
+        "en": "2026/11/12"
+      },
+      "title": {
+        "fa": "سرور اختصاصی سی‌نور راه افتاد 🚀",
+        "en": "CNor's dedicated server is live 🚀"
+      },
+      "body": {
+        "fa": "موقع ساختن اتاق حالا می‌تونید «ابر سی‌نور اختصاصی» رو انتخاب کنید. این سرور مال خود سی‌نوره و اتصال پایدارتری داره؛ اگه با ابرهای دیگه وصل نمی‌شدید یا وسط فیلم قطع می‌شدید، این گزینه رو امتحان کنید. هم ویندوز و هم اندروید ازش پشتیبانی می‌کنن.",
+        "en": "When you create a room you can now pick \"CNor Cloud Dedicated\". It's CNor's own server with a steadier connection; if the other clouds wouldn't connect for you or dropped mid-film, give this one a try. Both Windows and Android support it."
+      }
+    },
     {
       "id": "updates-1",
       "date": {
@@ -44,5 +74,8 @@
         "en": "To improve the app's quality, add new and more exciting features, and provide servers for the app, we need your support. Every donation, no matter how small, directly helps with the app's development and improvement."
       }
     }
-  ]
+  ],
+  "turn": {
+    "enabled": true
+  }
 }
