@@ -1,8 +1,8 @@
-version: 1.5.96
+version: 1.5.97
 files:
-  - url: https://github.com/cnorapp/cnorapp.github.io/releases/download/v1.5.96/Setup-1.5.96-x64.exe
-    sha512: fTuplZb6VdMGWEoAPnRz5jt6vJCthb0U2ckZsSJmEPlm6r2GkJFgFdr7ifkneGxvvjqemkPUpzzVcRbxIPMFeQ==
-    size: 83651855
-path: https://github.com/cnorapp/cnorapp.github.io/releases/download/v1.5.96/Setup-1.5.96-x64.exe
-sha512: fTuplZb6VdMGWEoAPnRz5jt6vJCthb0U2ckZsSJmEPlm6r2GkJFgFdr7ifkneGxvvjqemkPUpzzVcRbxIPMFeQ==
-releaseDate: '2026-11-12T16:23:31.378Z'
+  - url: https://github.com/cnorapp/cnorapp.github.io/releases/download/v1.5.97/Setup-1.5.97-x64.exe
+    sha512: q8yfFuBXhU1dMg1UQrI23ozbwJeYaWkl29jD6LDpQm9pSnbjg1cWtuDy2wyVJTPYX4KCMT97avMAsyhuXhvM7w==
+    size: 83665492
+path: https://github.com/cnorapp/cnorapp.github.io/releases/download/v1.5.97/Setup-1.5.97-x64.exe
+sha512: q8yfFuBXhU1dMg1UQrI23ozbwJeYaWkl29jD6LDpQm9pSnbjg1cWtuDy2wyVJTPYX4KCMT97avMAsyhuXhvM7w==
+releaseDate: '2026-11-13T03:09:09.592Z'
