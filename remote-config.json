@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "minVersion": "1.5.97",
+  "minVersion": "1.5.98",
   "message": "",
   "vpsSignaling": {
     "enabled": true,
@@ -9,9 +9,9 @@
   },
   "android": {
     "enabled": true,
-    "minVersion": "0.4.2",
+    "minVersion": "0.4.3",
     "message": "",
-    "downloadUrl": "https://github.com/cnorapp/cnorapp.github.io/releases/download/v0.4.2/CNor-0.4.2.apk"
+    "downloadUrl": "https://github.com/cnorapp/cnorapp.github.io/releases/download/v0.4.3/CNor-0.4.3.apk"
   },
   "announcements": [
     {
